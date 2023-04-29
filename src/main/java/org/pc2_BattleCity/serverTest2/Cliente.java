@@ -102,10 +102,14 @@ public class Cliente {
 
 
     private static void analizaMensaje(String message) {
+
         if (message.substring(0, 1).equals("{")) {
+            System.out.println("Llega aqui:" +message);
             //Verificamos su primer estado
             if (!elClienteSeIdentifico) {
+                System.out.println("Primera ves");
                 idClient = (int) ((JSONObject)new JSONObject(message)).get("id");
+                updateState(message);
                 initGame();
             }
             elClienteSeIdentifico = true;
@@ -119,8 +123,8 @@ public class Cliente {
     }
 
     private static void updateState(String stateInString) {
+        System.out.println("Resibiendo"+stateInString);
         managementArmament.setNewState((JSONObject) (new JSONObject(stateInString)).get("state"));
-
     }
 
     public static void enviarMensaje(String mensaje) throws IOException {

@@ -43,8 +43,6 @@ public class Servidor {
             clientesConectados.add(clienteConectado);
             //Agregamos armamentos iniciales (Esto incluye la base)
             addClientsArmaments(idAvailable);
-
-
             //Enviamos el primer stado al cliente
             // con un objeto json con si correspondinete id y la configuracion incial del mapa
             sendStateToOneClient(idAvailable,clienteConectado);
@@ -142,6 +140,8 @@ public class Servidor {
             JSONObject jMessage = new JSONObject();
             jMessage.put("id", idClient);
             jMessage.put("state", managementArmament.stateGame);
+            System.out.println("Enviando:"+jMessage.toString()
+            );
             client.salida.writeObject(jMessage.toString());
         } catch (IOException e) {
             System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
@@ -154,7 +154,7 @@ public class Servidor {
          * Agregando los objetos armamento iniciales, la base del jugador tambien se considera armament
          */
         //Agregando tanque
-        Tanque tanque = new Tanque(2, 2, Direccion.RIGHT_DIRECTION, 5);
+        Tanque tanque = new Tanque(2, 2, Direccion.RIGHT_DIRECTION, 2);
         JSONObject jTanque = tanque.getTanqueJsonObject();
         jTanque.put(Constants.ID_OWNER_LABEL, idAvailable);
         managementArmament.addObject(jTanque, Constants.TANQUES_LABEL);
