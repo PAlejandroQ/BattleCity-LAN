@@ -5,6 +5,8 @@ import org.json.JSONObject;
 import org.pc2_BattleCity.Constants;
 import org.pc2_BattleCity.client.gui.Draw;
 
+import java.util.concurrent.ExecutionException;
+
 
 public class ManagementArmament {
 
@@ -12,43 +14,69 @@ public class ManagementArmament {
     JSONObject stateGame = new JSONObject();
 
 
-    public ManagementArmament(){
-        stateGame.put("mapa",Constants.MAPA_NIVEL_1.getMap());
+    public ManagementArmament() {
+        stateGame.put("mapa", Constants.MAPA_NIVEL_1.getMap());
+        stateGame.put(Constants.BASES_LABEL, new JSONArray());
+        stateGame.put(Constants.BALAS_LABEL, new JSONArray());
+        stateGame.put(Constants.TANQUES_LABEL, new JSONArray());
     }
 
-    public void setNewState(JSONObject newState){
+    public JSONObject getStateGame() {
+        return stateGame;
+    }
+
+    public void setNewState(JSONObject newState) {
         stateGame = newState;
     }
-    public void addObject(JSONObject object,String type) {
-        try{
+
+    public void addObject(JSONObject object, String type) {
+        try {
             object.put(Constants.ID_OBJECT_LABEL, idAvailable);
-            stateGame.put(type, new JSONObject().put(Integer.toString(idAvailable), object));
+            JSONArray currArr = stateGame.getJSONArray(type);
+            currArr.put(object);
+            stateGame.put(type, currArr);
             idAvailable++;
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    //Update data objet
+    public void setObject(JSONObject object,String type) {
+        try {
+            int index = searchObject(object,type);
+            JSONArray arr = stateGame.getJSONArray(type);
+            arr.put(index,object);
+            stateGame.put(type,arr);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    public void deleteObject(JSONObject object,String type) {
+        try{
+            int index = searchObject(object,type);
+            JSONArray arr = stateGame.getJSONArray(type);
+            arr.remove(index);
+            stateGame.put(type,arr);
         }catch (Exception e){
             System.out.println(e);
         }
     }
-//
-//    //Update data objet
-//    public JSONObject setObject(JSONObject object) {
-//        int index = searchObject(object);
-//        objects.remove(index);
-//        objects.put(object);
-//        return objects.getJSONObject(index);
-//    }
-//
-//    public void deleteObject(JSONObject object) {
-//        int index = searchObject(object);
-//        objects.remove(index);
-//    }
-//
-//    private int searchObject(JSONObject object) {
-//        int i;
-//        for (i = 0; i < objects.length(); i++) {
-//            if (object.get(Constants.ID_OBJECT_LABEL) == (objects.getJSONObject(i)).get(Constants.ID_OBJECT_LABEL)) break;
-//        }
-//        return i;
-//    }
+
+    private int searchObject(JSONObject object, String type) {
+
+        int index = 0;
+        for (Object objAux : stateGame.getJSONArray(type)
+        ) {
+            JSONObject obj = new JSONObject(objAux);
+            if (obj.get(Constants.ID_OBJECT_LABEL) == object.get(Constants.ID_OBJECT_LABEL)) {
+                break;
+            }
+            index++;
+        }
+        return index;
+    }
 //
 //
 //    /**
@@ -64,8 +92,6 @@ public class ManagementArmament {
 //        newObj.put(Constants.DIRECTION,direction);
 //        return newObj;
 //    }
-
-
 
 
 }

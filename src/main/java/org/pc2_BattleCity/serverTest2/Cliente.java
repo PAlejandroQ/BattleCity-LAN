@@ -3,6 +3,7 @@ package org.pc2_BattleCity.serverTest2;
 import org.json.JSONObject;
 import org.pc2_BattleCity.Constants;
 import org.pc2_BattleCity.client.gui.Draw;
+import org.pc2_BattleCity.client.gui.InterfazGrafica;
 import org.pc2_BattleCity.client.gui.Juego;
 
 import java.io.IOException;
@@ -14,24 +15,26 @@ import java.util.Scanner;
 public class Cliente {
 
 
-    private int id;//Id que identifica al usuario
-    public Juego juego;
-    private ObjectOutputStream salida;
-    private Scanner scanner;
+    private static int idClient;//Id que identifica al usuario
+    static public InterfazGrafica interfazGrafica;
+    static private ObjectOutputStream salida;
+    static private Scanner scanner;
 
-    public void setJuego(Juego juegoEnlazado) {
-        juego = juegoEnlazado;
-    }
-
-    Draw draw = new Draw();
-    private ManagementArmament localState = new ManagementArmament();
-
-    public Cliente(Juego juegoEnlazado) {
-        juego = juegoEnlazado;
-    }
+//    public void setJuego(Juego juegoEnlazado) {
+//        juego = juegoEnlazado;
+//    }
 
 
-    public void iniciar() {
+    public static ManagementArmament managementArmament = new ManagementArmament();
+
+//    public Cliente(Juego juegoEnlazado) {
+//        juego = juegoEnlazado;
+//    }
+//
+
+    private static boolean elClienteSeIdentifico = false;
+
+    static public void iniciar() {
         try {
             Socket socket = new Socket("localhost", 5000);
             System.out.println("Conectado al servidor");
@@ -76,9 +79,9 @@ public class Cliente {
                         while (true) {
                             // Leer el mensaje recibido y mostrarlo en pantalla
                             String mensaje = (String) entrada.readObject();
-                            updateSatete(mensaje);
+                            analizaMensaje(mensaje);
 //                            juego.addMessageFromServer(mensaje);
-                            System.out.println(mensaje);
+
                         }
                     } catch (IOException | ClassNotFoundException ex) {
                         ex.printStackTrace();
@@ -87,21 +90,44 @@ public class Cliente {
             });
             entradaThread.start();
 
+            //#Inicando el manejador de cambios de estado
+            ThreadRevisaStado revisa = new ThreadRevisaStado();
+            revisa.start();
+
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
 
-    private void updateSatete(String stateInString) {
-        localState.setNewState((JSONObject) (new JSONObject(stateInString)).get("globalState"));
+    private static void analizaMensaje(String message) {
+        if (message.substring(0, 1).equals("{")) {
+            //Verificamos su primer estado
+            if (!elClienteSeIdentifico) {
+                idClient = (int) ((JSONObject)new JSONObject(message)).get("id");
+                initGame();
+            }
+            elClienteSeIdentifico = true;
+            updateState(message);
+            System.out.println(message + "Awui los pibes");
+
+        } else {
+            System.out.println("Awui los pibes k");
+            System.out.println(message);
+        }
     }
 
-    public void enviarMensaje(String mensaje) throws IOException {
+    private static void updateState(String stateInString) {
+        managementArmament.setNewState((JSONObject) (new JSONObject(stateInString)).get("state"));
+
+    }
+
+    public static void enviarMensaje(String mensaje) throws IOException {
         salida.writeObject(mensaje);
     }
 
-    public void sendStateToServer(String mensaje) throws IOException {
+    public static void sendStateToServer(String mensaje) throws IOException {
 
         salida.writeObject(mensaje);
 
@@ -109,22 +135,22 @@ public class Cliente {
 
 
     //Verifica si cambia el estado
-    public class ThreadRevisaStado extends Thread {
+    public static class ThreadRevisaStado extends Thread {
         @Override
         public void run() {
             JSONObject anterior = new JSONObject();
             while (true) {
                 try {
                     Thread.sleep(100);
-                    if (anterior.toString() == localState.stateGame.toString()) {
+                    if (anterior.toString() == managementArmament.stateGame.toString()) {
                         //Envia nuevo estado al servidor
-                        sendStateToServer(localState.stateGame.toString());
+                        sendStateToServer(managementArmament.stateGame.toString());
                         //Renderisa con el nuevo estado la gui
                         // Pero se podria optimizarce, para que dibuje solo los cambios
-                        draw.drawGame();
+                        drawGame();
                         System.out.print("Cambio estado->Renderizando");
                     }
-                    anterior = localState.stateGame;
+                    anterior = managementArmament.stateGame;
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 } catch (IOException e) {
@@ -136,12 +162,27 @@ public class Cliente {
     }
 
 
-//    public static void main(String[] args) throws IOException {
-//        Cliente cliente = new Cliente(new Juego());
-//        cliente.iniciar();
-//        cliente.enviarMensaje("HolaMetodo");
-//    }
+    public static void main(String[] args) throws IOException {
 
+        //Iniacimos conexion con el server
+        //Aqui trae la configuracion inicial
+        iniciar();
+
+        //Renderizando inicial
+//        drawGame();
+    }
+
+    private static void initGame() {
+//        juego = new Juego(); //Creando el juego
+//        juego.setState(managementArmament.stateGame);
+        interfazGrafica = new InterfazGrafica(managementArmament.stateGame, idClient);
+        drawGame();
+    }
+
+
+    private static void drawGame() {
+//        juego.crearTanques(managementArmament.stateGame.getJSONArray(Constants.TANQUES_LABEL));
+    }
 }
 
 

@@ -18,7 +18,7 @@ import javax.swing.*;
 
 public class Servidor {
     private final static int PUERTO = 5000;
-    private static ManagementArmament globlaState = new ManagementArmament();
+    private static ManagementArmament managementArmament = new ManagementArmament();
     ;
     private static ArrayList<ConexionCliente> clientesConectados = new ArrayList<>();
 
@@ -30,7 +30,7 @@ public class Servidor {
 
         System.out.println("Servidor iniciado en el puerto " + PUERTO);
 
-        //Inica el servidor, y tambien inicia el therar que verifica cambios de estado
+        //Inica el servidor, y tambien inicia el thread que verifica cambios de estado
         revisaStado = new ThreadRevisaStado();
         revisaStado.start();
 
@@ -75,9 +75,10 @@ public class Servidor {
                     enviarMensajes("Bienvenido al chat.");
                     nombreCliente = (String) entrada.readObject();
                     enviarMensajes("El cliente " + nombreCliente + " se ha conectado.");
+                    sendStateBroadCast();//El primer broadcas para todos
                     while (true) {
                         String mensaje = (String) entrada.readObject();
-                        enviarMensajes(nombreCliente + ": " + mensaje);
+                        analizaMensaje(mensaje);
                     }
                 } catch (IOException | ClassNotFoundException e) {
                     System.err.println("Error al leer el mensaje del cliente: " + e.getMessage());
@@ -114,6 +115,19 @@ public class Servidor {
         }
     }
 
+    private static void  analizaMensaje(String message){
+        if("{" == message.substring(0,1)){
+            updateState(message);
+        }else{
+            System.out.println(message);
+        }
+    }
+
+    private static void updateState(String message){
+        managementArmament.setNewState((JSONObject) new JSONObject(message).get("state"));
+    }
+
+
     private static void sendStateBroadCast() {
         int i = 0;
         for (ConexionCliente cliente : clientesConectados) {
@@ -127,7 +141,7 @@ public class Servidor {
         try {
             JSONObject jMessage = new JSONObject();
             jMessage.put("id", idClient);
-            jMessage.put("globalState", globlaState.stateGame);
+            jMessage.put("state", managementArmament.stateGame);
             client.salida.writeObject(jMessage.toString());
         } catch (IOException e) {
             System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
@@ -143,7 +157,7 @@ public class Servidor {
         Tanque tanque = new Tanque(2, 2, Direccion.RIGHT_DIRECTION, 5);
         JSONObject jTanque = tanque.getTanqueJsonObject();
         jTanque.put(Constants.ID_OWNER_LABEL, idAvailable);
-        globlaState.addObject(jTanque, Constants.TANQUES_LABEL);
+        managementArmament.addObject(jTanque, Constants.TANQUES_LABEL);
 
         //Agregando Base
 //        currentManagementArmament.addObject(ManagementArmament.createObject(idAvailable,Constants.TYPE_BASE_LABEL,Constants.BASE_UBICATIONS[idAvailable][0],Constants.BASE_UBICATIONS[idAvailable][1],Constants.DIRECTIONS[idAvailable]));
@@ -151,7 +165,7 @@ public class Servidor {
         Base base = new Base(Constants.BASE_UBICATIONS[idAvailable][0], Constants.BASE_UBICATIONS[idAvailable][1]);
         JSONObject jBase = base.getBaseJsonObject();
         jBase.put(Constants.ID_OWNER_LABEL, idAvailable);
-        globlaState.addObject(jBase, Constants.BASES_LABEL);
+        managementArmament.addObject(jBase, Constants.BASES_LABEL);
 
 
         //Las balas se agregaran en el transcurso pero desde el cliente
@@ -166,14 +180,14 @@ public class Servidor {
             while (true){
                 try {
                     Thread.sleep(100);
-                    if(anterior.toString() == globlaState.stateGame.toString()){
+                    if(anterior.toString() == managementArmament.stateGame.toString()){
 
                         //Envia a los demas BroadCasts
                         sendStateBroadCast();
 
                         System.out.print("Cambio estado->Renderizando");
                     }
-                    anterior = globlaState.stateGame;
+                    anterior = managementArmament.stateGame;
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
