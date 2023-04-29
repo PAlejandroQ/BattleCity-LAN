@@ -1,5 +1,8 @@
 package org.pc2_BattleCity.client.gui;
 
+import org.json.JSONObject;
+import org.pc2_BattleCity.Constants;
+
 import java.time.Instant;
 
 public class Bala {
@@ -54,19 +57,27 @@ public class Bala {
     // Método para mover la bala en la dirección actual
     public void mover() {
         switch (direccion) {
-            case ARRIBA: // arriba
+            case TOP_DIRECTION: // arriba
                 y--;
                 break;
-            case DERECHA: // derecha
+            case RIGHT_DIRECTION: // derecha
                 x++;
                 break;
-            case ABAJO: // abajo
+            case BOTTOM_DIRECTION: // abajo
                 y++;
                 break;
-            case IZQUIERDA: // izquierda
+            case LEFT_DIRECTION: // izquierda
                 x--;
                 break;
         }
         tiempoDisparo = Instant.now();
+    }
+    public JSONObject getBalaJsonObject(){
+        JSONObject jBala = new JSONObject();
+        jBala.put(Constants.Y_POSITION_LABEL,y);
+        jBala.put(Constants.X_POSITION_LABEL,x);
+        jBala.put(Constants.DIRECTION_LABEL,direccion);
+        jBala.put(Constants.SHOT_POWER,potencia);
+        return  jBala;
     }
 }

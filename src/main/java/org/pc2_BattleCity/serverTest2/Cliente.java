@@ -1,5 +1,8 @@
 package org.pc2_BattleCity.serverTest2;
 
+import org.json.JSONObject;
+import org.pc2_BattleCity.Constants;
+import org.pc2_BattleCity.client.gui.Draw;
 import org.pc2_BattleCity.client.gui.Juego;
 
 import java.io.IOException;
@@ -20,7 +23,10 @@ public class Cliente {
         juego = juegoEnlazado;
     }
 
-    public Cliente(Juego juegoEnlazado){
+    Draw draw = new Draw();
+    private ManagementArmament localState = new ManagementArmament();
+
+    public Cliente(Juego juegoEnlazado) {
         juego = juegoEnlazado;
     }
 
@@ -70,8 +76,8 @@ public class Cliente {
                         while (true) {
                             // Leer el mensaje recibido y mostrarlo en pantalla
                             String mensaje = (String) entrada.readObject();
-                            analizaMensajeRecived(mensaje);
-                            juego.addMessageFromServer(mensaje);
+                            updateSatete(mensaje);
+//                            juego.addMessageFromServer(mensaje);
                             System.out.println(mensaje);
                         }
                     } catch (IOException | ClassNotFoundException ex) {
@@ -87,22 +93,47 @@ public class Cliente {
     }
 
 
-
-    private void analizaMensajeRecived(String message){
-        if(message.substring(0,11)=="Your id is:") {
-            id = Integer.parseInt(message.substring(message.length() - 1));
-        }
-        else{//Acualizar algunos objetos
-
-        }
+    private void updateSatete(String stateInString) {
+        localState.setNewState((JSONObject) (new JSONObject(stateInString)).get("globalState"));
     }
 
     public void enviarMensaje(String mensaje) throws IOException {
         salida.writeObject(mensaje);
     }
 
+    public void sendStateToServer(String mensaje) throws IOException {
+
+        salida.writeObject(mensaje);
+
+    }
 
 
+    //Verifica si cambia el estado
+    public class ThreadRevisaStado extends Thread {
+        @Override
+        public void run() {
+            JSONObject anterior = new JSONObject();
+            while (true) {
+                try {
+                    Thread.sleep(100);
+                    if (anterior.toString() == localState.stateGame.toString()) {
+                        //Envia nuevo estado al servidor
+                        sendStateToServer(localState.stateGame.toString());
+                        //Renderisa con el nuevo estado la gui
+                        // Pero se podria optimizarce, para que dibuje solo los cambios
+                        draw.drawGame();
+                        System.out.print("Cambio estado->Renderizando");
+                    }
+                    anterior = localState.stateGame;
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        }
+    }
 
 
 //    public static void main(String[] args) throws IOException {

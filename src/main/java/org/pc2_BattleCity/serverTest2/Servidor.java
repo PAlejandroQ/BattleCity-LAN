@@ -9,20 +9,20 @@ import java.util.ArrayList;
 
 import org.json.JSONObject;
 import org.pc2_BattleCity.Constants;
+import org.pc2_BattleCity.client.gui.Base;
+import org.pc2_BattleCity.client.gui.Direccion;
 import org.pc2_BattleCity.client.gui.Mapa;
+import org.pc2_BattleCity.client.gui.Tanque;
 
 import javax.swing.*;
 
 public class Servidor {
     private final static int PUERTO = 5000;
-    private static ManagementArmament currentManagementArmament =  new ManagementArmament();;
+    private static ManagementArmament globlaState = new ManagementArmament();
+    ;
     private static ArrayList<ConexionCliente> clientesConectados = new ArrayList<>();
 
-    private static int[][] mapaNivel1 = Constants.MAPA_NIVEL_1.getMap();
-
-
-
-
+    private static ThreadRevisaStado revisaStado;
     public static void main(String[] args) throws IOException {
 
         int idAvailable = 0;
@@ -30,23 +30,25 @@ public class Servidor {
 
         System.out.println("Servidor iniciado en el puerto " + PUERTO);
 
-        addMap();
+        //Inica el servidor, y tambien inicia el therar que verifica cambios de estado
+        revisaStado = new ThreadRevisaStado();
+        revisaStado.start();
+
 
         while (true) {
             Socket socketCliente = servidor.accept();
             System.out.println("Nuevo cliente conectado desde " + socketCliente.getInetAddress().getHostAddress());
-            ConexionCliente clienteConectado = new ConexionCliente(socketCliente,idAvailable);
-            clientesConectados.add(clienteConectado);
-
+            ConexionCliente clienteConectado = new ConexionCliente(socketCliente, idAvailable);
             //Agregamos al cliente
+            clientesConectados.add(clienteConectado);
+            //Agregamos armamentos iniciales (Esto incluye la base)
             addClientsArmaments(idAvailable);
-            //Enviamos al cliente su id correspondiente
-            //Para que el cliente pueda actualizar el estado de sus objetos propios
 
-            sendMessageToOneClient("Your id is:"+idAvailable,idAvailable);
 
+            //Enviamos el primer stado al cliente
+            // con un objeto json con si correspondinete id y la configuracion incial del mapa
+            sendStateToOneClient(idAvailable,clienteConectado);
             new Thread(clienteConectado).start();
-
             idAvailable++;
         }
     }
@@ -58,7 +60,7 @@ public class Servidor {
         private int idClient;
         private String nombreCliente;
 
-        public ConexionCliente(Socket socketCliente,int idClient) throws IOException {
+        public ConexionCliente(Socket socketCliente, int idClient) throws IOException {
             this.socketCliente = socketCliente;
             this.salida = new ObjectOutputStream(socketCliente.getOutputStream());
             this.entrada = new ObjectInputStream(socketCliente.getInputStream());
@@ -73,7 +75,6 @@ public class Servidor {
                     enviarMensajes("Bienvenido al chat.");
                     nombreCliente = (String) entrada.readObject();
                     enviarMensajes("El cliente " + nombreCliente + " se ha conectado.");
-
                     while (true) {
                         String mensaje = (String) entrada.readObject();
                         enviarMensajes(nombreCliente + ": " + mensaje);
@@ -112,37 +113,75 @@ public class Servidor {
             }
         }
     }
-    private static void sendMessageToOneClient(String message,int idClient){
-        try{
-            clientesConectados.get(idClient).salida.writeObject(message);
-        }catch (IOException e){
+
+    private static void sendStateBroadCast() {
+        int i = 0;
+        for (ConexionCliente cliente : clientesConectados) {
+            sendStateToOneClient(i,cliente);
+            i++;
+        }
+    }
+
+
+    private static void sendStateToOneClient(int idClient,ConexionCliente client) {
+        try {
+            JSONObject jMessage = new JSONObject();
+            jMessage.put("id", idClient);
+            jMessage.put("globalState", globlaState.stateGame);
+            client.salida.writeObject(jMessage.toString());
+        } catch (IOException e) {
             System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
         }
     }
 
-    private static void addMap(){
-        //Aqui se agregara la configuracion del los bloques (mapa)
-        //Cada casilla sera como un objeto que se hara un seguimiento
-        //idOwner sera -1, dado que no le pernenece a ningun juagador
-        for (int i = 0; i < mapaNivel1.length; i++) {
-            for (int j = 0; j < mapaNivel1[i].length; j++) {
-                currentManagementArmament.addObject(ManagementArmament.createObject(-1,Integer.toString(mapaNivel1[i][j]),i,j,Constants.NEUTRAL_DIRECTION));
-            }
-        }
-    }
 
-    private static void addClientsArmaments(int idAvailable){
+    private static void addClientsArmaments(int idAvailable) {
         /**
          * Agregando los objetos armamento iniciales, la base del jugador tambien se considera armament
          */
         //Agregando tanque
-        currentManagementArmament.addObject(ManagementArmament.createObject(idAvailable, Constants.TYPE_TANQUE_LABEL,2*Constants.GRIDSIZE,2*Constants.GRIDSIZE,Constants.TOP_DIRECTION));
-        //Agregando Base
-        currentManagementArmament.addObject(ManagementArmament.createObject(idAvailable,Constants.TYPE_BASE_LABEL,Constants.BASE_UBICATIONS[idAvailable][0],Constants.BASE_UBICATIONS[idAvailable][1],Constants.DIRECTIONS[idAvailable]));
+        Tanque tanque = new Tanque(2, 2, Direccion.RIGHT_DIRECTION, 5);
+        JSONObject jTanque = tanque.getTanqueJsonObject();
+        jTanque.put(Constants.ID_OWNER_LABEL, idAvailable);
+        globlaState.addObject(jTanque, Constants.TANQUES_LABEL);
 
-        //Las balas se agregaran en el transcurso
+        //Agregando Base
+//        currentManagementArmament.addObject(ManagementArmament.createObject(idAvailable,Constants.TYPE_BASE_LABEL,Constants.BASE_UBICATIONS[idAvailable][0],Constants.BASE_UBICATIONS[idAvailable][1],Constants.DIRECTIONS[idAvailable]));
+
+        Base base = new Base(Constants.BASE_UBICATIONS[idAvailable][0], Constants.BASE_UBICATIONS[idAvailable][1]);
+        JSONObject jBase = base.getBaseJsonObject();
+        jBase.put(Constants.ID_OWNER_LABEL, idAvailable);
+        globlaState.addObject(jBase, Constants.BASES_LABEL);
+
+
+        //Las balas se agregaran en el transcurso pero desde el cliente
 
     }
+
+    //Verifica si cambia el estado
+    public static class  ThreadRevisaStado extends Thread{
+        @Override
+        public void run() {
+            JSONObject anterior = new JSONObject();
+            while (true){
+                try {
+                    Thread.sleep(100);
+                    if(anterior.toString() == globlaState.stateGame.toString()){
+
+                        //Envia a los demas BroadCasts
+                        sendStateBroadCast();
+
+                        System.out.print("Cambio estado->Renderizando");
+                    }
+                    anterior = globlaState.stateGame;
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        }
+    }
+
 }
 
 

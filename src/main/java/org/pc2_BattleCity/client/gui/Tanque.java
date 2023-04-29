@@ -1,5 +1,8 @@
 package org.pc2_BattleCity.client.gui;
 
+import org.json.JSONObject;
+import org.pc2_BattleCity.Constants;
+
 public class Tanque {
     private int x; // posición x del tanque
     private int y; // posición y del tanque
@@ -71,16 +74,16 @@ public class Tanque {
     public void mover(Direccion direccion) {
         this.direccion = direccion;
         switch (direccion) {
-            case ARRIBA: // arriba
+            case TOP_DIRECTION: // arriba
                 y -= velocidad;
                 break;
-            case DERECHA: // derecha
+            case RIGHT_DIRECTION: // derecha
                 x += velocidad;
                 break;
-            case ABAJO: // abajo
+            case BOTTOM_DIRECTION: // abajo
                 y += velocidad;
                 break;
-            case IZQUIERDA: // izquierda
+            case LEFT_DIRECTION: // izquierda
                 x -= velocidad;
                 break;
         }
@@ -99,4 +102,17 @@ public class Tanque {
     public Direccion getDireccionCanon() {
         return direccion;
     }
+
+    public JSONObject getTanqueJsonObject(){
+        JSONObject jTanque = new JSONObject();
+        jTanque.put(Constants.X_POSITION_LABEL,x);
+        jTanque.put(Constants.Y_POSITION_LABEL,y);
+        jTanque.put(Constants.DIRECTION_LABEL,direccion);
+        jTanque.put(Constants.SPEED_LABEL,velocidad);
+        jTanque.put(Constants.SHOT_POWER,potenciaDisparo);
+
+        return jTanque;
+    }
+
+
 }

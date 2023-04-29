@@ -33,16 +33,16 @@ public class Enemigo extends Tanque {
 
         switch (accion) {
             case 0:
-                mover(Direccion.ARRIBA);
+                mover(Direccion.TOP_DIRECTION);
                 break;
             case 1:
-                mover(Direccion.ABAJO);
+                mover(Direccion.BOTTOM_DIRECTION);
                 break;
             case 2:
-                mover(Direccion.IZQUIERDA);
+                mover(Direccion.LEFT_DIRECTION);
                 break;
             case 3:
-                mover(Direccion.DERECHA);
+                mover(Direccion.RIGHT_DIRECTION);
                 break;
         }
     }

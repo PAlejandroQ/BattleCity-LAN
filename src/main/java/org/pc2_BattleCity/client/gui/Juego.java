@@ -1,7 +1,9 @@
 package org.pc2_BattleCity.client.gui;
 
+import org.json.JSONObject;
 import org.pc2_BattleCity.client.gui.*;
 import org.pc2_BattleCity.serverTest2.Cliente;
+import org.pc2_BattleCity.serverTest2.ManagementArmament;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -9,6 +11,8 @@ import java.util.List;
 import java.util.Queue;
 
 public class Juego {
+
+    private ManagementArmament localState = new ManagementArmament();
     InterfazGrafica window;
     private int numJugadores=1;
     public Mapa mapa;
@@ -47,7 +51,7 @@ public class Juego {
         tanques.add(tanque1);
         tanques.add(tanque2);*/
         for(int i=0; i<numJugadores; ++i){
-            Tanque t = new Tanque(2,2,Direccion.ARRIBA, 1);
+            Tanque t = new Tanque(2,2,Direccion.TOP_DIRECTION, 1);
             tanques.add(t);
         }
     }
@@ -55,8 +59,8 @@ public class Juego {
     // Método para crear los enemigos
     private void crearEnemigos() {
         // Crear los enemigos y agregarlos a la lista de enemigos
-        Enemigo enemigo1 = new Enemigo(5, 5, Direccion.IZQUIERDA);
-        Enemigo enemigo2 = new Enemigo(10, 10, Direccion.DERECHA);
+        Enemigo enemigo1 = new Enemigo(5, 5, Direccion.LEFT_DIRECTION);
+        Enemigo enemigo2 = new Enemigo(10, 10, Direccion.RIGHT_DIRECTION);
         enemigos.add(enemigo1);
         enemigos.add(enemigo2);
     }
@@ -72,13 +76,13 @@ public class Juego {
         // Crear una nueva bala en la posición del tanque y con la dirección del cañón
         Tanque tanque = tanques.get(indiceTanque);
         Bala bala;
-        if(tanque.getDireccion()==Direccion.ARRIBA){
+        if(tanque.getDireccion()==Direccion.TOP_DIRECTION){
             bala = new Bala(tanque.getX() + 1, tanque.getY(), tanque.getDireccionCanon(), 1);
         }
-        else if(tanque.getDireccion()==Direccion.DERECHA){
+        else if(tanque.getDireccion()==Direccion.RIGHT_DIRECTION){
             bala = new Bala(tanque.getX() + 3, tanque.getY()+1, tanque.getDireccionCanon(), 1);
         }
-        else if(tanque.getDireccion()==Direccion.ABAJO){
+        else if(tanque.getDireccion()==Direccion.BOTTOM_DIRECTION){
             bala = new Bala(tanque.getX() + 1, tanque.getY()+3, tanque.getDireccionCanon(), 1);
         }
         else{

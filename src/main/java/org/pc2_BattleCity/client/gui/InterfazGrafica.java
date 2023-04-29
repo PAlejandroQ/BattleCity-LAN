@@ -62,16 +62,16 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         // Mueve el tanque según la tecla presionada
         switch (key) {
             case KeyEvent.VK_W:
-                moverJugador(0, Direccion.ARRIBA);
+                moverJugador(0, Direccion.TOP_DIRECTION);
                 break;
             case KeyEvent.VK_A:
-                moverJugador(0, Direccion.IZQUIERDA);
+                moverJugador(0, Direccion.LEFT_DIRECTION);
                 break;
             case KeyEvent.VK_S:
-                moverJugador(0, Direccion.ABAJO);
+                moverJugador(0, Direccion.BOTTOM_DIRECTION);
                 break;
             case KeyEvent.VK_D:
-                moverJugador(0, Direccion.DERECHA);
+                moverJugador(0, Direccion.RIGHT_DIRECTION);
                 break;
             case KeyEvent.VK_SPACE:
                 dispararJugador(0,juego.getTanque(0).getDireccion());
@@ -192,28 +192,28 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             return;
         }
         int x = t.getX(), y=t.getY();
-        if(direccion== Direccion.ARRIBA){
+        if(direccion== Direccion.TOP_DIRECTION){
             for(int i=0; i<3;i++){
                 if(juego.mapa.getCasilla(x+i, y-1)!=0){
                     return;
                 }
             }
         }
-        else if(direccion==Direccion.DERECHA){
+        else if(direccion==Direccion.RIGHT_DIRECTION){
             for(int i=0; i<3;i++){
                 if(juego.mapa.getCasilla(x+3, y+i)!=0){
                     return;
                 }
             }
         }
-        else if(direccion==Direccion.ABAJO){
+        else if(direccion==Direccion.BOTTOM_DIRECTION){
             for(int i=0; i<3;i++){
                 if(juego.mapa.getCasilla(x+i, y+3)!=0){
                     return;
                 }
             }
         }
-        else if(direccion==Direccion.IZQUIERDA){
+        else if(direccion==Direccion.LEFT_DIRECTION){
             for(int i=0; i<3;i++){
                 if(juego.mapa.getCasilla(x-1, y+i)!=0){
                     return;
@@ -231,16 +231,16 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         Graphics2D g = (Graphics2D) gameBoardCanvas.getGraphics();
         g.setBackground(new Color(4,6,46));
         for(Bala bala : juego.balas){
-            if(bala.getDireccion()==Direccion.ARRIBA){
+            if(bala.getDireccion()==Direccion.TOP_DIRECTION){
                 g.clearRect(bala.getX()*GRIDSIZE, (bala.getY()+1)*GRIDSIZE, GRIDSIZE, GRIDSIZE);
             }
-            else if(bala.getDireccion()==Direccion.ABAJO){
+            else if(bala.getDireccion()==Direccion.BOTTOM_DIRECTION){
                 g.clearRect(bala.getX()*GRIDSIZE, (bala.getY()-1)*GRIDSIZE, GRIDSIZE, GRIDSIZE);
             }
-            else if(bala.getDireccion()==Direccion.IZQUIERDA){
+            else if(bala.getDireccion()==Direccion.LEFT_DIRECTION){
                 g.clearRect((bala.getX()+1)*GRIDSIZE, bala.getY()*GRIDSIZE, GRIDSIZE, GRIDSIZE);
             }
-            else if(bala.getDireccion()==Direccion.DERECHA){
+            else if(bala.getDireccion()==Direccion.RIGHT_DIRECTION){
                 g.clearRect((bala.getX()-1)*GRIDSIZE, bala.getY()*GRIDSIZE, GRIDSIZE, GRIDSIZE);
             }
             g.setColor(Color.white);
@@ -306,26 +306,26 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             System.out.println(x/GRIDSIZE+ " "+y/GRIDSIZE);
             Graphics2D g2d = (Graphics2D) g;
             System.out.println(t.getDireccion());
-            if(t.getDireccion()==Direccion.DERECHA){
+            if(t.getDireccion()==Direccion.RIGHT_DIRECTION){
                 g2d.rotate(Math.PI/2, x + 3*GRIDSIZE/2,y + 3*GRIDSIZE/2);
             }
-            else if(t.getDireccion()==Direccion.IZQUIERDA){
+            else if(t.getDireccion()==Direccion.LEFT_DIRECTION){
                 g2d.rotate(-Math.PI/2, x + 3*GRIDSIZE/2,y + 3*GRIDSIZE/2);
             }
-            else if(t.getDireccion()==Direccion.ABAJO ){
+            else if(t.getDireccion()==Direccion.BOTTOM_DIRECTION ){
                 g2d.rotate(2*Math.PI/2, x + 3*GRIDSIZE/2,y + 3*GRIDSIZE/2);
             }
 
 
             g2d.drawImage(img, t.getX()*GRIDSIZE, t.getY()*GRIDSIZE,null); // see javadoc for more info on the parameters
 
-            if(t.getDireccion()==Direccion.DERECHA){
+            if(t.getDireccion()==Direccion.RIGHT_DIRECTION){
                 g2d.rotate(-Math.PI/2, x + 3*GRIDSIZE/2,y + 3*GRIDSIZE/2);
             }
-            else if(t.getDireccion()==Direccion.IZQUIERDA){
+            else if(t.getDireccion()==Direccion.LEFT_DIRECTION){
                 g2d.rotate(Math.PI/2, x + 3*GRIDSIZE/2,y + 3*GRIDSIZE/2);
             }
-            else if(t.getDireccion()==Direccion.ABAJO ){
+            else if(t.getDireccion()==Direccion.BOTTOM_DIRECTION ){
                 g2d.rotate(-2*Math.PI/2, x + 3*GRIDSIZE/2,y + 3*GRIDSIZE/2);
             }
         }

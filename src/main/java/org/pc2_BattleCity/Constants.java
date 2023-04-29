@@ -8,26 +8,35 @@ import java.util.HashMap;
 public class Constants {
 
 
-    public static final String ID_OWNER_LABEL= "idOwner";
-    public static final String ID_OBJECT_LABEL= "idObject";
-    public static final String X_POSITION_LABEL= "xPosition";
-    public static final String Y_POSITION_LABEL= "yPosition";
-    public static final String Y_TYPE_LABEL= "type";
-    public static final String DIRECTION = "direction";
+    public static final String ID_OWNER_LABEL= "ID_OWNER_LABEL";
+    public static final String ID_OBJECT_LABEL= "ID_OBJECT_LABEL";
+    public static final String X_POSITION_LABEL= "X_POSITION_LABEL";
+    public static final String Y_POSITION_LABEL= "Y_POSITION_LABEL";
+    public static final String Y_TYPE_LABEL= "Y_TYPE_LABEL";
+
 
 
     //Tipos de objetos que se usan en la guerra
-    public static final  String TYPE_TANQUE_LABEL = "wartank";
-    public static final  String TYPE_BALA_LABEL = "bala";
+    public static final  String TYPE_TANQUE_LABEL = "TYPE_TANQUE_LABEL";
+    public static final  String TYPE_BALA_LABEL = "TYPE_BALA_LABEL";
+    public static final String DIRECTION_LABEL = "DIRECTION_LABEL";
+    public static final String SPEED_LABEL = "SPEED_LABEL";
+    public static final String SHOT_POWER = "SHOT_POWER";
 
-    public static final  String TYPE_BASE_LABEL = "base"; //Consideramos a la base tambien en este grupo
+    public static final  String TYPE_BASE_LABEL = "TYPE_BASE_LABEL"; //Consideramos a la base tambien en este grupo
 
     //Directions
-    public static final String LEFT_DIRECTION = "left";
-    public static final String RIGHT_DIRECTION= "right";
-    public static final String TOP_DIRECTION = "top";
-    public static final String BOTTOM_DIRECTION = "bottom";
-    public static final String NEUTRAL_DIRECTION = "neutral";
+    public static final String LEFT_DIRECTION = "LEFT_DIRECTION";
+    public static final String RIGHT_DIRECTION= "RIGHT_DIRECTION";
+    public static final String TOP_DIRECTION = "TOP_DIRECTION";
+    public static final String BOTTOM_DIRECTION = "BOTTOM_DIRECTION";
+    public static final String NEUTRAL_DIRECTION = "NEUTRAL_DIRECTION";
+
+
+    public static final String BALAS_LABEL = "BALAS_LABEL";
+    public static final String TANQUES_LABEL = "TANQUES_LABEL";
+
+    public static final String BASES_LABEL = "BASES_LABEL";
 
     public static final String[] DIRECTIONS = {LEFT_DIRECTION,RIGHT_DIRECTION,TOP_DIRECTION,BOTTOM_DIRECTION,NEUTRAL_DIRECTION};
 
