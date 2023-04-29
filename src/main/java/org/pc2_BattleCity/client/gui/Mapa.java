@@ -3,7 +3,7 @@ package org.pc2_BattleCity.client.gui;
 
 public class Mapa {
 
-         int[][] casillas = new int[InterfazGrafica.WIDTH/InterfazGrafica.GRIDSIZE][InterfazGrafica.HEIGHT/InterfazGrafica.GRIDSIZE];
+    int[][] casillas = new int[InterfazGrafica.WIDTH/InterfazGrafica.GRIDSIZE][InterfazGrafica.HEIGHT/InterfazGrafica.GRIDSIZE];
     private int ancho;
     private int alto;
     private int nivel;
@@ -127,6 +127,10 @@ public class Mapa {
 
     public int getAlto() {
         return alto;
+    }
+
+    public int[][] getMap(){
+        return casillas;
     }
 }
 

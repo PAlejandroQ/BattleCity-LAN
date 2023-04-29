@@ -10,6 +10,8 @@ import java.util.Scanner;
 
 public class Cliente {
 
+
+    private int id;//Id que identifica al usuario
     public Juego juego;
     private ObjectOutputStream salida;
     private Scanner scanner;
@@ -22,9 +24,6 @@ public class Cliente {
         juego = juegoEnlazado;
     }
 
-    public void enviarMensaje(String mensaje) throws IOException {
-        salida.writeObject(mensaje);
-    }
 
     public void iniciar() {
         try {
@@ -68,10 +67,10 @@ public class Cliente {
                     try {
                         // Obtener el canal de entrada del socket
                         ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream());
-
                         while (true) {
                             // Leer el mensaje recibido y mostrarlo en pantalla
                             String mensaje = (String) entrada.readObject();
+                            analizaMensajeRecived(mensaje);
                             juego.addMessageFromServer(mensaje);
                             System.out.println(mensaje);
                         }
@@ -86,6 +85,25 @@ public class Cliente {
             ex.printStackTrace();
         }
     }
+
+
+
+    private void analizaMensajeRecived(String message){
+        if(message.substring(0,11)=="Your id is:") {
+            id = Integer.parseInt(message.substring(message.length() - 1));
+        }
+        else{//Acualizar algunos objetos
+
+        }
+    }
+
+    public void enviarMensaje(String mensaje) throws IOException {
+        salida.writeObject(mensaje);
+    }
+
+
+
+
 
 //    public static void main(String[] args) throws IOException {
 //        Cliente cliente = new Cliente(new Juego());

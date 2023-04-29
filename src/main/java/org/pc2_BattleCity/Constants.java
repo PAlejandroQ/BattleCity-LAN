@@ -1,5 +1,7 @@
 package org.pc2_BattleCity;
 
+import org.pc2_BattleCity.client.gui.Mapa;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,5 +37,12 @@ public class Constants {
 
     //Ubicacion de las bases de acuerdo a la llegada (Se puede agregar mas)
     public static int[][] BASE_UBICATIONS = {{20*GRIDSIZE,0},{40*GRIDSIZE,20*GRIDSIZE},{20*GRIDSIZE,40*GRIDSIZE},{0,20*GRIDSIZE}};
+
+    //Configuracion de los bloques
+
+    public static Mapa MAPA_NIVEL_1 = new Mapa(1);
+
+
+
 
 }

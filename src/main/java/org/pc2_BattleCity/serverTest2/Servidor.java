@@ -9,12 +9,16 @@ import java.util.ArrayList;
 
 import org.json.JSONObject;
 import org.pc2_BattleCity.Constants;
+import org.pc2_BattleCity.client.gui.Mapa;
 
-public class
-Servidor {
+import javax.swing.*;
+
+public class Servidor {
     private final static int PUERTO = 5000;
     private static ManagementArmament currentManagementArmament =  new ManagementArmament();;
     private static ArrayList<ConexionCliente> clientesConectados = new ArrayList<>();
+
+    private static int[][] mapaNivel1 = Constants.MAPA_NIVEL_1.getMap();
 
 
 
@@ -26,26 +30,23 @@ Servidor {
 
         System.out.println("Servidor iniciado en el puerto " + PUERTO);
 
+        addMap();
+
         while (true) {
             Socket socketCliente = servidor.accept();
             System.out.println("Nuevo cliente conectado desde " + socketCliente.getInetAddress().getHostAddress());
-            ConexionCliente clienteConectado = new ConexionCliente(socketCliente);
+            ConexionCliente clienteConectado = new ConexionCliente(socketCliente,idAvailable);
             clientesConectados.add(clienteConectado);
 
-            /**
-             * Agregando los objetos armamento iniciales, la base del jugador tambien se considera armament
-             */
-            //Agregando tanque
-            currentManagementArmament.addObject(ManagementArmament.createObject(idAvailable, Constants.TYPE_TANQUE_LABEL,2*Constants.GRIDSIZE,2*Constants.GRIDSIZE,Constants.TOP_DIRECTION));
-            //Agregando Base
-            currentManagementArmament.addObject(ManagementArmament.createObject(idAvailable,Constants.TYPE_BASE_LABEL,Constants.BASE_UBICATIONS[idAvailable][0],Constants.BASE_UBICATIONS[idAvailable][1],Constants.DIRECTIONS[idAvailable]));
+            //Agregamos al cliente
+            addClientsArmaments(idAvailable);
+            //Enviamos al cliente su id correspondiente
+            //Para que el cliente pueda actualizar el estado de sus objetos propios
 
-            //Aqui se agregara la configuracion del los bloques
-
-
-            //Las balas se agregaran en el transcurso
+            sendMessageToOneClient("Your id is:"+idAvailable,idAvailable);
 
             new Thread(clienteConectado).start();
+
             idAvailable++;
         }
     }
@@ -54,12 +55,14 @@ Servidor {
         private final Socket socketCliente;
         private final ObjectOutputStream salida;
         private final ObjectInputStream entrada;
+        private int idClient;
         private String nombreCliente;
 
-        public ConexionCliente(Socket socketCliente) throws IOException {
+        public ConexionCliente(Socket socketCliente,int idClient) throws IOException {
             this.socketCliente = socketCliente;
             this.salida = new ObjectOutputStream(socketCliente.getOutputStream());
             this.entrada = new ObjectInputStream(socketCliente.getInputStream());
+            this.idClient = idClient;
         }
 
         @Override
@@ -70,6 +73,7 @@ Servidor {
                     enviarMensajes("Bienvenido al chat.");
                     nombreCliente = (String) entrada.readObject();
                     enviarMensajes("El cliente " + nombreCliente + " se ha conectado.");
+
                     while (true) {
                         String mensaje = (String) entrada.readObject();
                         enviarMensajes(nombreCliente + ": " + mensaje);
@@ -82,9 +86,6 @@ Servidor {
 
             });
             broadcastCliente.start();
-
-
-
         }
 
         private void desconectarCliente() {
@@ -97,16 +98,50 @@ Servidor {
             }
         }
 
-        private void enviarMensajes(String mensaje) {
-            System.out.println(mensaje);
-            for (ConexionCliente cliente : clientesConectados) {
-                try {
-                    cliente.salida.writeObject(mensaje);
-                } catch (IOException e) {
-                    System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
-                }
+
+    }
+
+
+    private static void enviarMensajes(String mensaje) {
+        System.out.println(mensaje);
+        for (ConexionCliente cliente : clientesConectados) {
+            try {
+                cliente.salida.writeObject(mensaje);
+            } catch (IOException e) {
+                System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
             }
         }
+    }
+    private static void sendMessageToOneClient(String message,int idClient){
+        try{
+            clientesConectados.get(idClient).salida.writeObject(message);
+        }catch (IOException e){
+            System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
+        }
+    }
+
+    private static void addMap(){
+        //Aqui se agregara la configuracion del los bloques (mapa)
+        //Cada casilla sera como un objeto que se hara un seguimiento
+        //idOwner sera -1, dado que no le pernenece a ningun juagador
+        for (int i = 0; i < mapaNivel1.length; i++) {
+            for (int j = 0; j < mapaNivel1[i].length; j++) {
+                currentManagementArmament.addObject(ManagementArmament.createObject(-1,Integer.toString(mapaNivel1[i][j]),i,j,Constants.NEUTRAL_DIRECTION));
+            }
+        }
+    }
+
+    private static void addClientsArmaments(int idAvailable){
+        /**
+         * Agregando los objetos armamento iniciales, la base del jugador tambien se considera armament
+         */
+        //Agregando tanque
+        currentManagementArmament.addObject(ManagementArmament.createObject(idAvailable, Constants.TYPE_TANQUE_LABEL,2*Constants.GRIDSIZE,2*Constants.GRIDSIZE,Constants.TOP_DIRECTION));
+        //Agregando Base
+        currentManagementArmament.addObject(ManagementArmament.createObject(idAvailable,Constants.TYPE_BASE_LABEL,Constants.BASE_UBICATIONS[idAvailable][0],Constants.BASE_UBICATIONS[idAvailable][1],Constants.DIRECTIONS[idAvailable]));
+
+        //Las balas se agregaran en el transcurso
+
     }
 }
 
