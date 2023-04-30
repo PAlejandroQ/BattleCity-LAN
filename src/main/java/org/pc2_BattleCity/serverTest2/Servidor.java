@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import org.json.JSONObject;
+import org.pc2_BattleCity.ComplementFunctions;
 import org.pc2_BattleCity.Constants;
 import org.pc2_BattleCity.client.gui.Base;
 import org.pc2_BattleCity.client.gui.Direccion;
@@ -23,6 +24,7 @@ public class Servidor {
     private static ArrayList<ConexionCliente> clientesConectados = new ArrayList<>();
 
     private static ThreadRevisaStado revisaStado;
+    private static JSONObject beforeState = new JSONObject();
     public static void main(String[] args) throws IOException {
 
         int idAvailable = 0;
@@ -76,6 +78,7 @@ public class Servidor {
                     sendStateBroadCast();//El primer broadcas para todos
                     while (true) {
                         String mensaje = (String) entrada.readObject();
+                        System.out.println("resibiendo del cliente:"+mensaje);
                         analizaMensaje(mensaje);
                     }
                 } catch (IOException | ClassNotFoundException e) {
@@ -114,7 +117,8 @@ public class Servidor {
     }
 
     private static void  analizaMensaje(String message){
-        if("{" == message.substring(0,1)){
+        System.out.println("Analizando mensaje");
+        if("{".equals(message.substring(0,1))){
             updateState(message);
         }else{
             System.out.println(message);
@@ -122,11 +126,14 @@ public class Servidor {
     }
 
     private static void updateState(String message){
+        System.out.println("Actualizando estado");
         managementArmament.setNewState((JSONObject) new JSONObject(message).get("state"));
+        sendStateBroadCast();
     }
 
 
     private static void sendStateBroadCast() {
+        System.out.println("enviviando breadcast");
         int i = 0;
         for (ConexionCliente cliente : clientesConectados) {
             sendStateToOneClient(i,cliente);
@@ -140,8 +147,7 @@ public class Servidor {
             JSONObject jMessage = new JSONObject();
             jMessage.put("id", idClient);
             jMessage.put("state", managementArmament.stateGame);
-            System.out.println("Enviando:"+jMessage.toString()
-            );
+            System.out.println("Enviando:"+jMessage.toString());
             client.salida.writeObject(jMessage.toString());
         } catch (IOException e) {
             System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
@@ -154,9 +160,8 @@ public class Servidor {
          * Agregando los objetos armamento iniciales, la base del jugador tambien se considera armament
          */
         //Agregando tanque
-        Tanque tanque = new Tanque(2, 2, Direccion.RIGHT_DIRECTION, 2);
+        Tanque tanque = new Tanque(-1, idAvailable,2,2, Direccion.RIGHT_DIRECTION, 2);
         JSONObject jTanque = tanque.getTanqueJsonObject();
-        jTanque.put(Constants.ID_OWNER_LABEL, idAvailable);
         managementArmament.addObject(jTanque, Constants.TANQUES_LABEL);
 
         //Agregando Base
@@ -176,18 +181,15 @@ public class Servidor {
     public static class  ThreadRevisaStado extends Thread{
         @Override
         public void run() {
-            JSONObject anterior = new JSONObject();
             while (true){
                 try {
                     Thread.sleep(100);
-                    if(anterior.toString() == managementArmament.stateGame.toString()){
-
+                    if(!ComplementFunctions.isEqualJSONs(beforeState,managementArmament.stateGame)){
                         //Envia a los demas BroadCasts
+                        System.out.print("Cambio estado:"+managementArmament.getStateGame());
                         sendStateBroadCast();
-
-                        System.out.print("Cambio estado->Renderizando");
                     }
-                    anterior = managementArmament.stateGame;
+                    beforeState = new JSONObject (managementArmament.stateGame.toString());
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -195,6 +197,10 @@ public class Servidor {
             }
         }
     }
+
+
+
+
 
 }
 

@@ -3,6 +3,8 @@ package org.pc2_BattleCity.client.gui;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.pc2_BattleCity.Constants;
+import org.pc2_BattleCity.serverTest2.Cliente;
+import org.pc2_BattleCity.serverTest2.ManagementArmament;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -15,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class InterfazGrafica extends JFrame implements KeyListener {
-    GameBoardCanvas gameBoardCanvas;
+    public GameBoardCanvas gameBoardCanvas;
     public static final int HEIGHT = 600;
     public static final int WIDTH = 600;
     public static final int GRIDSIZE = 15;
@@ -81,6 +83,16 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         // ...
     }
 
+
+    public void Render(){
+        JSONArray tanques = state.getJSONArray(Constants.TANQUES_LABEL);
+        gameBoardCanvas.p[idClient].setPosition(
+                ((JSONObject) tanques.get(idClient)).getInt(Constants.X_POSITION_LABEL),
+                ((JSONObject)tanques.get(idClient)).getInt(Constants.Y_POSITION_LABEL)
+        );
+        gameBoardCanvas.repaint();
+    }
+
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
 
@@ -93,16 +105,20 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         // Mueve el tanque según la tecla presionada
         switch (key) {
             case KeyEvent.VK_W:
-                moverJugador(0, Direccion.TOP_DIRECTION);
+                System.out.println("Presionando arriba");
+                moverJugador(idClient, Direccion.TOP_DIRECTION);
                 break;
             case KeyEvent.VK_A:
-                moverJugador(0, Direccion.LEFT_DIRECTION);
+                System.out.println("Presionando izquierda");
+                moverJugador(idClient, Direccion.LEFT_DIRECTION);
                 break;
             case KeyEvent.VK_S:
-                moverJugador(0, Direccion.BOTTOM_DIRECTION);
+                System.out.println("Presionando abajo");
+                moverJugador(idClient, Direccion.BOTTOM_DIRECTION);
                 break;
             case KeyEvent.VK_D:
-                moverJugador(0, Direccion.RIGHT_DIRECTION);
+                System.out.println("Presionando derecha");
+                moverJugador(idClient, Direccion.RIGHT_DIRECTION);
                 break;
             case KeyEvent.VK_SPACE:
 //                dispararJugador(0,juego.getTanque(0).getDireccion());
@@ -110,9 +126,15 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         }
 
         // Actualiza la posición del JLabel del tanque
-//        gameBoardCanvas.p[0].setPosition(juego.getTanque(0).getX(), juego.getTanque(0).getY());
-        gameBoardCanvas.repaint();
+        //        Cliente.managementArmament.setObject();
+
+
+
+
     }
+
+    //Busac tanque por id owner
+
 
     public void keyTyped(KeyEvent e) {
     }
@@ -120,7 +142,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
     public void keyReleased(KeyEvent e) {
     }
 
-    class GameBoardCanvas extends JPanel {
+    public class GameBoardCanvas extends JPanel {
         ImagePanel p[] = new ImagePanel[3];
         EaglePanel e;
         int numTanques = 1;
@@ -132,9 +154,9 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             crearObjetos(g);
             setBackground(new Color(4, 6, 46));
             e.paintComponent(g);
-//            for(int i=0;i<numTanques;++i){
-//                p[i].paintComponent(g);
-//            }
+            for(int i=0;i<state.getJSONArray(Constants.TANQUES_LABEL).length();++i){
+                p[i].paintComponent(g);
+            }
         }
 
         public void actualizar() {
@@ -227,43 +249,62 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         // ...
     }
 
-    private void moverJugador(int jugador, Direccion direccion) {
+    private void moverJugador(int idClient, Direccion direccion) {
+
 //        Tanque t = juego.getTanque(jugador);
-//        if(t.getDireccion()!=direccion){
-//            t.setDireccion(direccion);
-//            gameBoardCanvas.repaint();
-//            return;
-//        }
-//        int x = t.getX(), y=t.getY();
-//        if(direccion== Direccion.TOP_DIRECTION){
-//            for(int i=0; i<3;i++){
-//                if(juego.mapa.getCasilla(x+i, y-1)!=0){
-//                    return;
-//                }
-//            }
-//        }
-//        else if(direccion==Direccion.RIGHT_DIRECTION){
-//            for(int i=0; i<3;i++){
-//                if(juego.mapa.getCasilla(x+3, y+i)!=0){
-//                    return;
-//                }
-//            }
-//        }
-//        else if(direccion==Direccion.BOTTOM_DIRECTION){
-//            for(int i=0; i<3;i++){
-//                if(juego.mapa.getCasilla(x+i, y+3)!=0){
-//                    return;
-//                }
-//            }
-//        }
-//        else if(direccion==Direccion.LEFT_DIRECTION){
-//            for(int i=0; i<3;i++){
-//                if(juego.mapa.getCasilla(x-1, y+i)!=0){
-//                    return;
-//                }
-//            }
-//        }
-//        t.mover(direccion);
+        int [][] mapa = getMatrix((JSONArray) state.get("mapa"));
+        JSONObject tAux = searchObject(Constants.TANQUES_LABEL,idClient);
+        Tanque t = new Tanque(
+                tAux.getInt(Constants.ID_OBJECT_LABEL),
+                tAux.getInt(Constants.ID_OWNER_LABEL),
+                tAux.getInt(Constants.X_POSITION_LABEL),
+                tAux.getInt(Constants.Y_POSITION_LABEL),
+                Constants.getDirectionEnum(tAux.getString(Constants.DIRECTION_LABEL)),1);
+
+
+        if(t.getDireccion()!=direccion){
+            t.setDireccion(direccion);
+            //Actializando el estado
+            Cliente.managementArmament.setObject(t.getTanqueJsonObject(),Constants.TANQUES_LABEL);
+            Render();
+            //            gameBoardCanvas.repaint();
+            //Ya que se volvera a renderizar cada que cambia el estado
+            return;
+        }
+
+        int x = t.getX(), y=t.getY();
+        if(direccion== Direccion.TOP_DIRECTION){
+            for(int i=0; i<3;i++){
+                if(mapa[x+i][ y-1]!=0){
+                    return;
+                }
+            }
+        }
+        else if(direccion==Direccion.RIGHT_DIRECTION){
+            for(int i=0; i<3;i++){
+                if(mapa[x+3][ y+i]!=0){
+                    return;
+                }
+            }
+        }
+        else if(direccion==Direccion.BOTTOM_DIRECTION){
+            for(int i=0; i<3;i++){
+                if(mapa[x+i][ y+3]!=0){
+                    return;
+                }
+            }
+        }
+        else if(direccion==Direccion.LEFT_DIRECTION){
+            for(int i=0; i<3;i++){
+                if(mapa[x-1][ y+i]!=0){
+                    return;
+                }
+            }
+        }
+        t.mover(direccion);
+        Cliente.managementArmament.setObject(t.getTanqueJsonObject(),Constants.TANQUES_LABEL);
+        setState(Cliente.managementArmament.getStateGame());
+        Render();
     }
 
 //    private void dispararJugador(int jugador, Direccion direccion) {
@@ -330,8 +371,8 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         Image img;
 
         public ImagePanel(JSONObject t) {
-            this.t = (JSONObject) searchObject(Constants.TANQUES_LABEL, idClient);
-            System.out.println(this.t.toString() + "Awui");
+            this.t = t;
+            System.out.println("\nRUNBA:"+this.t.toString());
             this.x = (t.getInt(Constants.X_POSITION_LABEL)) * GRIDSIZE;
             this.y = (t.getInt(Constants.Y_POSITION_LABEL)) * GRIDSIZE;
             try {
@@ -359,7 +400,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             }
 
 
-            g2d.drawImage(img, Integer.parseInt(t.getString(Constants.X_POSITION_LABEL)) * GRIDSIZE, Integer.parseInt(t.getString(Constants.Y_POSITION_LABEL)) * GRIDSIZE, null); // see javadoc for more info on the parameters
+            g2d.drawImage(img, t.getInt(Constants.X_POSITION_LABEL) * GRIDSIZE, t.getInt(Constants.Y_POSITION_LABEL) * GRIDSIZE, null); // see javadoc for more info on the parameters
 
             if (t.get(Constants.DIRECTION_LABEL) == Direccion.RIGHT_DIRECTION) {
                 g2d.rotate(-Math.PI / 2, x + 3 * GRIDSIZE / 2, y + 3 * GRIDSIZE / 2);
@@ -396,9 +437,9 @@ public class InterfazGrafica extends JFrame implements KeyListener {
 
         @Override
         protected void paintComponent(Graphics g) {
-//            super.paintComponent(g);
-//            Graphics2D g2d = (Graphics2D) g;
-//            g2d.drawImage(img, x*GRIDSIZE, y*GRIDSIZE,null); // see javadoc for more info on the parameters
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.drawImage(img, x*GRIDSIZE, y*GRIDSIZE,null); // see javadoc for more info on the parameters
         }
 
     }

@@ -2,6 +2,7 @@ package org.pc2_BattleCity.serverTest2;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.pc2_BattleCity.ComplementFunctions;
 import org.pc2_BattleCity.Constants;
 import org.pc2_BattleCity.client.gui.Draw;
 
@@ -42,24 +43,26 @@ public class ManagementArmament {
     }
 
     //Update data objet
-    public void setObject(JSONObject object,String type) {
+    public void setObject(JSONObject object, String type) {
+
         try {
-            int index = searchObject(object,type);
+            int index = searchObject(object, type);
             JSONArray arr = stateGame.getJSONArray(type);
-            arr.put(index,object);
-            stateGame.put(type,arr);
+            arr.put(index, object);
+            stateGame.put(type, arr);
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println(e + "Estoy aqui");
         }
+
     }
 
-    public void deleteObject(JSONObject object,String type) {
-        try{
-            int index = searchObject(object,type);
+    public void deleteObject(JSONObject object, String type) {
+        try {
+            int index = searchObject(object, type);
             JSONArray arr = stateGame.getJSONArray(type);
             arr.remove(index);
-            stateGame.put(type,arr);
-        }catch (Exception e){
+            stateGame.put(type, arr);
+        } catch (Exception e) {
             System.out.println(e);
         }
     }
@@ -69,7 +72,7 @@ public class ManagementArmament {
         int index = 0;
         for (Object objAux : stateGame.getJSONArray(type)
         ) {
-            JSONObject obj = new JSONObject(objAux);
+            JSONObject obj = new JSONObject((objAux).toString());
             if (obj.get(Constants.ID_OBJECT_LABEL) == object.get(Constants.ID_OBJECT_LABEL)) {
                 break;
             }

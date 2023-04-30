@@ -3,6 +3,8 @@ package org.pc2_BattleCity.client.gui;
 import org.json.JSONObject;
 import org.pc2_BattleCity.Constants;
 
+import javax.swing.*;
+
 public class Tanque {
     private int x; // posición x del tanque
     private int y; // posición y del tanque
@@ -10,9 +12,13 @@ public class Tanque {
     private boolean vivo; // indica si el tanque está vivo o muerto
     private int velocidad; // velocidad de movimiento del tanque
     private int potenciaDisparo; // potencia de disparo del tanque
+    private int idObject;
+    private  int idOwner;
 
     // Constructor
-    public Tanque(int x, int y, Direccion direccion, int velocidad) {
+    public Tanque(int idObject,int idOwner,int x, int y, Direccion direccion, int velocidad) {
+        this.idObject = idObject;
+        this.idOwner = idOwner;
         this.x = x;
         this.y = y;
         this.direccion = direccion;
@@ -75,16 +81,16 @@ public class Tanque {
         this.direccion = direccion;
         switch (direccion) {
             case TOP_DIRECTION: // arriba
-                y -= velocidad;
+                y =- velocidad;
                 break;
             case RIGHT_DIRECTION: // derecha
-                x += velocidad;
+                x =+ velocidad;
                 break;
             case BOTTOM_DIRECTION: // abajo
-                y += velocidad;
+                y =+ velocidad;
                 break;
             case LEFT_DIRECTION: // izquierda
-                x -= velocidad;
+                x =- velocidad;
                 break;
         }
 
@@ -110,6 +116,8 @@ public class Tanque {
         jTanque.put(Constants.DIRECTION_LABEL,direccion);
         jTanque.put(Constants.SPEED_LABEL,velocidad);
         jTanque.put(Constants.SHOT_POWER,potenciaDisparo);
+        jTanque.put(Constants.ID_OWNER_LABEL,idOwner);
+        jTanque.put(Constants.ID_OBJECT_LABEL,idObject);
 
         return jTanque;
     }

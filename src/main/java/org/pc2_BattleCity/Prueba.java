@@ -13,9 +13,9 @@ public class Prueba {
 //        other[0][0] = 20;
 //        json.put("mapa",other);
 
-        Tanque t = new Tanque(2,3, Direccion.LEFT_DIRECTION,5);
-        json.put("tanque",t.getTanqueJsonObject());
-        System.out.print(json);
+//        Tanque t = new Tanque(2,3, Direccion.LEFT_DIRECTION,5);
+//        json.put("tanque",t.getTanqueJsonObject());
+//        System.out.print(json);
 
 
         ThreadRevisaStado thread = new ThreadRevisaStado();
