@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.json.JSONObject;
 import org.pc2_BattleCity.ComplementFunctions;
@@ -21,10 +22,11 @@ public class Servidor {
     private final static int PUERTO = 5000;
     private static ManagementArmament managementArmament = new ManagementArmament();
     ;
-    private static ArrayList<ConexionCliente> clientesConectados = new ArrayList<>();
+    private static HashMap<Integer, ConexionCliente> clientesConectados = new HashMap<>();
 
-    private static ThreadRevisaStado revisaStado;
+
     private static JSONObject beforeState = new JSONObject();
+
     public static void main(String[] args) throws IOException {
 
         int idAvailable = 0;
@@ -32,22 +34,21 @@ public class Servidor {
 
         System.out.println("Servidor iniciado en el puerto " + PUERTO);
 
-        //Inica el servidor, y tambien inicia el thread que verifica cambios de estado
-        revisaStado = new ThreadRevisaStado();
-        revisaStado.start();
-
-
         while (true) {
             Socket socketCliente = servidor.accept();
             System.out.println("Nuevo cliente conectado desde " + socketCliente.getInetAddress().getHostAddress());
             ConexionCliente clienteConectado = new ConexionCliente(socketCliente, idAvailable);
             //Agregamos al cliente
-            clientesConectados.add(clienteConectado);
+
+
+            clientesConectados.put(idAvailable, clienteConectado);
+
             //Agregamos armamentos iniciales (Esto incluye la base)
             addClientsArmaments(idAvailable);
             //Enviamos el primer stado al cliente
             // con un objeto json con si correspondinete id y la configuracion incial del mapa
-            sendStateToOneClient(idAvailable,clienteConectado);
+//            sendStateToOneClient(idAvailable,clienteConectado);
+
             new Thread(clienteConectado).start();
             idAvailable++;
         }
@@ -78,8 +79,7 @@ public class Servidor {
                     sendStateBroadCast();//El primer broadcas para todos
                     while (true) {
                         String mensaje = (String) entrada.readObject();
-                        System.out.println("resibiendo del cliente:"+mensaje);
-                        analizaMensaje(mensaje);
+                        handleMessage(mensaje);
                     }
                 } catch (IOException | ClassNotFoundException e) {
                     System.err.println("Error al leer el mensaje del cliente: " + e.getMessage());
@@ -106,48 +106,63 @@ public class Servidor {
 
 
     private static void enviarMensajes(String mensaje) {
-        System.out.println(mensaje);
-        for (ConexionCliente cliente : clientesConectados) {
+        System.out.println("Enviando mesaje simple:"+mensaje);
+        JSONObject jMessage = new JSONObject();
+        jMessage.put(Constants.REQUEST_TYPE_LABEL,Constants.REQUEST_MESSAGE);
+        jMessage.put(Constants.PAYLOAD_LABEL,mensaje);
+        for (int idClient : clientesConectados.keySet()) {
             try {
-                cliente.salida.writeObject(mensaje);
+                clientesConectados.get(idClient).salida.writeObject(jMessage.toString());
             } catch (IOException e) {
                 System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
             }
         }
     }
 
-    private static void  analizaMensaje(String message){
-        System.out.println("Analizando mensaje");
-        if("{".equals(message.substring(0,1))){
-            updateState(message);
-        }else{
-            System.out.println(message);
+    private static void handleMessage(String message) {
+        System.out.println("Resiviendo mesaje del cliente:"+message);
+        JSONObject jMessage = new JSONObject(message);
+        if (jMessage.getString(Constants.REQUEST_TYPE_LABEL).equals(Constants.REQUEST_MESSAGE)) {
+            System.out.println("Mensaje simple:"+jMessage.getString(Constants.PAYLOAD_LABEL));
         }
+
+        if (jMessage.getString(Constants.REQUEST_TYPE_LABEL).equals(Constants.REQUEST_UPDATE_STATE)) {
+            updateState((JSONObject) jMessage.get(Constants.PAYLOAD_LABEL));
+        }
+
+//        System.out.println("Analizando mensaje");
+//        if("{".equals(message.substring(0,1))){
+//            updateState(message);
+//        }else{
+//            System.out.println(message);
+//        }
     }
 
-    private static void updateState(String message){
-        System.out.println("Actualizando estado");
-        managementArmament.setNewState((JSONObject) new JSONObject(message).get("state"));
+    private static void updateState(JSONObject jState) {
+        System.out.println("Actualizando estado:");
+        managementArmament.setNewState((JSONObject) jState.get(Constants.STATE_LABEL));
         sendStateBroadCast();
     }
 
 
     private static void sendStateBroadCast() {
         System.out.println("enviviando breadcast");
-        int i = 0;
-        for (ConexionCliente cliente : clientesConectados) {
-            sendStateToOneClient(i,cliente);
-            i++;
+        //Acualiza y envia bradcas (Para optimizar se podria modificar aqui para que envie a solo los demas y no asi mismo tambien)
+        for (int idClient : clientesConectados.keySet()) {
+            sendStateToOneClient(idClient,clientesConectados.get(idClient));
         }
     }
 
 
-    private static void sendStateToOneClient(int idClient,ConexionCliente client) {
+    private static void sendStateToOneClient(int idClient, ConexionCliente client) {
         try {
             JSONObject jMessage = new JSONObject();
-            jMessage.put("id", idClient);
-            jMessage.put("state", managementArmament.stateGame);
-            System.out.println("Enviando:"+jMessage.toString());
+            jMessage.put(Constants.REQUEST_TYPE_LABEL,Constants.REQUEST_UPDATE_STATE);
+            JSONObject payload = new JSONObject();
+            payload.put(Constants.ID_CLIENT_LABEL,idClient);
+            payload.put(Constants.STATE_LABEL,managementArmament.stateGame);
+            jMessage.put(Constants.PAYLOAD_LABEL,payload);
+            System.out.println("Enviando nuevo stado:" + jMessage.toString());
             client.salida.writeObject(jMessage.toString());
         } catch (IOException e) {
             System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
@@ -160,7 +175,7 @@ public class Servidor {
          * Agregando los objetos armamento iniciales, la base del jugador tambien se considera armament
          */
         //Agregando tanque
-        Tanque tanque = new Tanque(-1, idAvailable,2,2, Direccion.RIGHT_DIRECTION, 2);
+        Tanque tanque = new Tanque(-1, idAvailable, 2, 2, Direccion.RIGHT_DIRECTION, 2);
         JSONObject jTanque = tanque.getTanqueJsonObject();
         managementArmament.addObject(jTanque, Constants.TANQUES_LABEL);
 
@@ -176,30 +191,6 @@ public class Servidor {
         //Las balas se agregaran en el transcurso pero desde el cliente
 
     }
-
-    //Verifica si cambia el estado
-    public static class  ThreadRevisaStado extends Thread{
-        @Override
-        public void run() {
-            while (true){
-                try {
-                    Thread.sleep(100);
-                    if(!ComplementFunctions.isEqualJSONs(beforeState,managementArmament.stateGame)){
-                        //Envia a los demas BroadCasts
-                        System.out.print("Cambio estado:"+managementArmament.getStateGame());
-                        sendStateBroadCast();
-                    }
-                    beforeState = new JSONObject (managementArmament.stateGame.toString());
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-            }
-        }
-    }
-
-
-
 
 
 }

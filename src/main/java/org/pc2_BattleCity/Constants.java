@@ -3,6 +3,7 @@ package org.pc2_BattleCity;
 import org.pc2_BattleCity.client.gui.Direccion;
 import org.pc2_BattleCity.client.gui.Mapa;
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -65,6 +66,20 @@ public class Constants {
     //Configuracion de los bloques
 
     public static Mapa MAPA_NIVEL_1 = new Mapa(1);
+    public static String MAP_LABEL = "MAP_LABEL";
+    public static String ID_LABEL = "ID_LABEL";
 
+    /**
+     * Tipos de solicitud
+     */
+
+    public static String  REQUEST_MESSAGE = "REQUEST_MESSAGE";
+    public static String REQUEST_UPDATE_STATE = "REQUEST_UPDATE_STATE";
+
+    public static String REQUEST_TYPE_LABEL = "REQUEST_TYPE_LABEL";
+    public static String PAYLOAD_LABEL = "PAYLOAD_LABEL";
+
+    public static String ID_CLIENT_LABEL = "ID_CLIENT_LABEL";
+    public static  String STATE_LABEL = "STATE_LABEL";
 
 }

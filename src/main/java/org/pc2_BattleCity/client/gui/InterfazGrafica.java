@@ -2,6 +2,7 @@ package org.pc2_BattleCity.client.gui;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.pc2_BattleCity.ComplementFunctions;
 import org.pc2_BattleCity.Constants;
 import org.pc2_BattleCity.serverTest2.Cliente;
 import org.pc2_BattleCity.serverTest2.ManagementArmament;
@@ -27,7 +28,9 @@ public class InterfazGrafica extends JFrame implements KeyListener {
 
 //    Juego juego;
 
-    JSONObject state;
+    private JSONObject state;
+    private JSONObject beforeState = new JSONObject("{'nothing':'nothing'}");
+    ThreadRevisaStado revisaStado;
 
 
     public void setState(JSONObject state) {
@@ -81,6 +84,12 @@ public class InterfazGrafica extends JFrame implements KeyListener {
 
         // Iniciar el juego
         // ...
+
+        /**
+         * Iniciado manejaddor de estado
+         */
+        revisaStado = new ThreadRevisaStado();
+        revisaStado.start();
     }
 
 
@@ -444,5 +453,32 @@ public class InterfazGrafica extends JFrame implements KeyListener {
 
     }
 
+
+    /**
+     * Revisador de estado
+     * Para renderizar la pantalla, si esta cambia
+     */
+    public class ThreadRevisaStado extends Thread{
+        @Override
+        public void run() {
+            while (true){
+                try {
+                    Thread.sleep(100);
+                    if(!ComplementFunctions.isEqualJSONs(beforeState,state)){
+                        //Envia a los demas BroadCasts
+                        Cliente.sendStateToServer();
+                        System.out.print("Cambio estado (Renderizando):"+state);
+                        Render();
+                    }
+                    beforeState = new JSONObject (state.toString());
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        }
+    }
 
 }
