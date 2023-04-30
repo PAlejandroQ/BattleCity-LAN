@@ -175,7 +175,7 @@ public class Servidor {
          * Agregando los objetos armamento iniciales, la base del jugador tambien se considera armament
          */
         //Agregando tanque
-        Tanque tanque = new Tanque(-1, idAvailable, 2, 2, Direccion.RIGHT_DIRECTION, 2);
+        Tanque tanque = new Tanque(-7, idAvailable, 2, 2, Direccion.RIGHT_DIRECTION, 1);
         JSONObject jTanque = tanque.getTanqueJsonObject();
         managementArmament.addObject(jTanque, Constants.TANQUES_LABEL);
 

@@ -16,6 +16,7 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class InterfazGrafica extends JFrame implements KeyListener {
     public GameBoardCanvas gameBoardCanvas;
@@ -60,9 +61,8 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         this.state = state;
 //        this.juego = j;
         this.gameBoardCanvas = new GameBoardCanvas();
-
         gameBoardCanvas.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        gameBoardCanvas.p[0] = new ImagePanel(searchObject(Constants.TANQUES_LABEL, idClient));
+
         gameBoardCanvas.e = new EaglePanel();
         this.add(gameBoardCanvas);
         this.setPreferredSize(new Dimension(WIDTH + 10, HEIGHT + 40));
@@ -90,15 +90,25 @@ public class InterfazGrafica extends JFrame implements KeyListener {
          */
         revisaStado = new ThreadRevisaStado();
         revisaStado.start();
+
+//        Render();//RENDER INICIAL
     }
 
 
     public void Render(){
         JSONArray tanques = state.getJSONArray(Constants.TANQUES_LABEL);
-        gameBoardCanvas.p[idClient].setPosition(
-                ((JSONObject) tanques.get(idClient)).getInt(Constants.X_POSITION_LABEL),
-                ((JSONObject)tanques.get(idClient)).getInt(Constants.Y_POSITION_LABEL)
-        );
+
+        int index = 0;
+        for (Object tanqueAux: tanques) {
+            JSONObject tanque = new JSONObject(tanqueAux.toString());
+            gameBoardCanvas.p[index] = new ImagePanel(tanque);
+            index++;
+        }
+        
+//        gameBoardCanvas.p[idClient].setPosition(
+//                ((JSONObject) tanques.get(idClient)).getInt(Constants.X_POSITION_LABEL),
+//                ((JSONObject)tanques.get(idClient)).getInt(Constants.Y_POSITION_LABEL)
+//        );
         gameBoardCanvas.repaint();
     }
 
@@ -134,10 +144,6 @@ public class InterfazGrafica extends JFrame implements KeyListener {
                 break;
         }
 
-        // Actualiza la posición del JLabel del tanque
-        //        Cliente.managementArmament.setObject();
-
-
 
 
     }
@@ -152,9 +158,8 @@ public class InterfazGrafica extends JFrame implements KeyListener {
     }
 
     public class GameBoardCanvas extends JPanel {
-        ImagePanel p[] = new ImagePanel[3];
+        ImagePanel[] p= new ImagePanel[10];//10 jugadores
         EaglePanel e;
-        int numTanques = 1;
 
         @Override
         public void paintComponent(Graphics g) {
@@ -163,9 +168,24 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             crearObjetos(g);
             setBackground(new Color(4, 6, 46));
             e.paintComponent(g);
-            for(int i=0;i<state.getJSONArray(Constants.TANQUES_LABEL).length();++i){
-                p[i].paintComponent(g);
+
+            //Pintando tanques
+
+
+
+            JSONArray tanques = state.getJSONArray(Constants.TANQUES_LABEL);
+
+            for (Object tAux : (JSONArray) tanques) {
+
+                JSONObject tanque = new JSONObject((tAux).toString());
+                p[tanque.getInt(Constants.ID_OWNER_LABEL)].paintComponent(g);
+
             }
+
+
+//            for(int i=0;i<state.getJSONArray(Constants.TANQUES_LABEL).length();++i){
+//                p[i].paintComponent(g);
+//            }
         }
 
         public void actualizar() {
@@ -268,52 +288,59 @@ public class InterfazGrafica extends JFrame implements KeyListener {
                 tAux.getInt(Constants.ID_OWNER_LABEL),
                 tAux.getInt(Constants.X_POSITION_LABEL),
                 tAux.getInt(Constants.Y_POSITION_LABEL),
-                Constants.getDirectionEnum(tAux.getString(Constants.DIRECTION_LABEL)),1);
+                Constants.getDirectionEnum(tAux.getString(Constants.DIRECTION_LABEL)),
+                tAux.getInt(Constants.SPEED_LABEL));
 
 
         if(t.getDireccion()!=direccion){
+            System.out.println("Camia direcion a"+direccion);
             t.setDireccion(direccion);
-            //Actializando el estado
+            //Actualizando el estado
             Cliente.managementArmament.setObject(t.getTanqueJsonObject(),Constants.TANQUES_LABEL);
-            Render();
+            setState(Cliente.managementArmament.getStateGame());
+//            Render();
             //            gameBoardCanvas.repaint();
             //Ya que se volvera a renderizar cada que cambia el estado
             return;
         }
 
         int x = t.getX(), y=t.getY();
-        if(direccion== Direccion.TOP_DIRECTION){
+        if(direccion.equals(Direccion.TOP_DIRECTION)){
+
             for(int i=0; i<3;i++){
                 if(mapa[x+i][ y-1]!=0){
                     return;
                 }
             }
+            System.out.println("Moviendoce a "+direccion);
         }
-        else if(direccion==Direccion.RIGHT_DIRECTION){
+        else if(direccion.equals(Direccion.RIGHT_DIRECTION)){
             for(int i=0; i<3;i++){
                 if(mapa[x+3][ y+i]!=0){
                     return;
                 }
             }
+            System.out.println("Moviendoce a "+direccion);
         }
-        else if(direccion==Direccion.BOTTOM_DIRECTION){
+        else if(direccion.equals(Direccion.BOTTOM_DIRECTION)){
             for(int i=0; i<3;i++){
                 if(mapa[x+i][ y+3]!=0){
                     return;
                 }
             }
+            System.out.println("Moviendoce a "+direccion);
         }
-        else if(direccion==Direccion.LEFT_DIRECTION){
+        else if(direccion.equals(Direccion.LEFT_DIRECTION)){
             for(int i=0; i<3;i++){
                 if(mapa[x-1][ y+i]!=0){
                     return;
                 }
             }
+            System.out.println("Moviendoce a "+direccion);
         }
         t.mover(direccion);
         Cliente.managementArmament.setObject(t.getTanqueJsonObject(),Constants.TANQUES_LABEL);
         setState(Cliente.managementArmament.getStateGame());
-        Render();
     }
 
 //    private void dispararJugador(int jugador, Direccion direccion) {
@@ -400,22 +427,22 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             System.out.println(x / GRIDSIZE + " " + y / GRIDSIZE);
             Graphics2D g2d = (Graphics2D) g;
 //            System.out.println(t.getDireccion());
-            if (t.get(Constants.DIRECTION_LABEL) == Direccion.RIGHT_DIRECTION) {
+            if (Constants.getDirectionEnum(t.getString(Constants.DIRECTION_LABEL)).equals(Direccion.RIGHT_DIRECTION)) {
                 g2d.rotate(Math.PI / 2, x + 3 * GRIDSIZE / 2, y + 3 * GRIDSIZE / 2);
-            } else if (t.get(Constants.DIRECTION_LABEL) == Direccion.LEFT_DIRECTION) {
+            } else if (Constants.getDirectionEnum(t.getString(Constants.DIRECTION_LABEL)).equals(Direccion.LEFT_DIRECTION)) {
                 g2d.rotate(-Math.PI / 2, x + 3 * GRIDSIZE / 2, y + 3 * GRIDSIZE / 2);
-            } else if (t.get(Constants.DIRECTION_LABEL) == Direccion.BOTTOM_DIRECTION) {
+            } else if (Constants.getDirectionEnum(t.getString(Constants.DIRECTION_LABEL)).equals(Direccion.BOTTOM_DIRECTION)) {
                 g2d.rotate(2 * Math.PI / 2, x + 3 * GRIDSIZE / 2, y + 3 * GRIDSIZE / 2);
             }
 
 
             g2d.drawImage(img, t.getInt(Constants.X_POSITION_LABEL) * GRIDSIZE, t.getInt(Constants.Y_POSITION_LABEL) * GRIDSIZE, null); // see javadoc for more info on the parameters
 
-            if (t.get(Constants.DIRECTION_LABEL) == Direccion.RIGHT_DIRECTION) {
+            if (Constants.getDirectionEnum(t.getString(Constants.DIRECTION_LABEL)).equals(Direccion.RIGHT_DIRECTION)) {
                 g2d.rotate(-Math.PI / 2, x + 3 * GRIDSIZE / 2, y + 3 * GRIDSIZE / 2);
-            } else if (t.get(Constants.DIRECTION_LABEL) == Direccion.LEFT_DIRECTION) {
+            } else if (Constants.getDirectionEnum(t.getString(Constants.DIRECTION_LABEL)).equals(Direccion.LEFT_DIRECTION)) {
                 g2d.rotate(Math.PI / 2, x + 3 * GRIDSIZE / 2, y + 3 * GRIDSIZE / 2);
-            } else if (t.get(Constants.DIRECTION_LABEL) == Direccion.BOTTOM_DIRECTION) {
+            } else if (Constants.getDirectionEnum(t.getString(Constants.DIRECTION_LABEL)).equals(Direccion.BOTTOM_DIRECTION)) {
                 g2d.rotate(-2 * Math.PI / 2, x + 3 * GRIDSIZE / 2, y + 3 * GRIDSIZE / 2);
             }
         }
@@ -466,6 +493,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
                     Thread.sleep(100);
                     if(!ComplementFunctions.isEqualJSONs(beforeState,state)){
                         //Envia a los demas BroadCasts
+                        Cliente.managementArmament.setNewState(state);
                         Cliente.sendStateToServer();
                         System.out.print("Cambio estado (Renderizando):"+state);
                         Render();

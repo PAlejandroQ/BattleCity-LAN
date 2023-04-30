@@ -81,17 +81,19 @@ public class Tanque {
         this.direccion = direccion;
         switch (direccion) {
             case TOP_DIRECTION: // arriba
-                y =- velocidad;
+                y -= velocidad;
                 break;
             case RIGHT_DIRECTION: // derecha
-                x =+ velocidad;
+                x += velocidad;
                 break;
             case BOTTOM_DIRECTION: // abajo
-                y =+ velocidad;
+                y += velocidad;
                 break;
             case LEFT_DIRECTION: // izquierda
-                x =- velocidad;
+                x -= velocidad;
                 break;
+            default:
+                System.out.println("No direction");
         }
 
     }
