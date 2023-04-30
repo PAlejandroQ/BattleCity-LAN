@@ -16,8 +16,7 @@ import java.util.Scanner;
 
 public class Cliente {
 
-
-    private static int idClient;//Id que identifica al usuario
+    static  private int idClient;//Id que identifica al usuario
     static public InterfazGrafica interfazGrafica;
     static private ObjectOutputStream salida;
     static private Scanner scanner;
@@ -27,7 +26,7 @@ public class Cliente {
 //    }
 
     public static JSONObject stadoAnterior = new JSONObject();
-    public static ManagementArmament managementArmament = new ManagementArmament();
+//    public static ManagementArmament managementArmament = new ManagementArmament();
 
 //    public Cliente(Juego juegoEnlazado) {
 //        juego = juegoEnlazado;
@@ -106,7 +105,7 @@ public class Cliente {
 
         if(jMessage.get(Constants.REQUEST_TYPE_LABEL).equals(Constants.REQUEST_UPDATE_STATE)){
             System.out.println("El servidos envio nuevo estado");
-            updateState(jMessage.getJSONObject(Constants.PAYLOAD_LABEL).getJSONObject(Constants.STATE_LABEL));
+            updateState(jMessage.getJSONObject(Constants.PAYLOAD_LABEL));
         }
 
         if(jMessage.get(Constants.REQUEST_TYPE_LABEL).equals(Constants.REQUEST_MESSAGE)){
@@ -138,14 +137,14 @@ public class Cliente {
     }
 
     private static void updateState(JSONObject state) {
-        managementArmament.setNewState(state);
-
         //Se ejecuta a la primera ves que llega un cambio de estado (Par inicial el juego)
         if(!suscrito){
-            initGame();
+            idClient = state.getInt(Constants.ID_CLIENT_LABEL);
+            initGame(state.getJSONObject(Constants.STATE_LABEL));
+            System.out.println("Iniciaste el juego, su id es:"+idClient);
         }
         suscrito =true;
-        interfazGrafica.setState(managementArmament.stateGame);
+        interfazGrafica.setState(state.getJSONObject(Constants.STATE_LABEL));
     }
 
     public static void enviarMensaje(String message) throws IOException {
@@ -155,7 +154,7 @@ public class Cliente {
         salida.writeObject(jMessage.toString());
     }
 
-    public static void sendStateToServer() throws IOException {
+    public static void sendStateToServer(JSONObject state) throws IOException {
 
         JSONObject jMessage = new JSONObject();
 
@@ -163,16 +162,18 @@ public class Cliente {
 
         JSONObject payload = new JSONObject();
         payload.put(Constants.ID_CLIENT_LABEL,idClient);
-        payload.put(Constants.STATE_LABEL,managementArmament.stateGame);
+        payload.put(Constants.STATE_LABEL,state);
         jMessage.put(Constants.PAYLOAD_LABEL,payload);
 
         salida.writeObject(jMessage.toString());
 
     }
 
-    private static void initGame() {
+
+
+    private static void initGame(JSONObject state) {
         System.out.println("Iniciando juego");
-        interfazGrafica = new InterfazGrafica(managementArmament.stateGame, idClient);
+        interfazGrafica = new InterfazGrafica(state, idClient);
     }
 
 //    private static void drawGame() {

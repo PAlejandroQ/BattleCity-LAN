@@ -162,7 +162,7 @@ public class Servidor {
             payload.put(Constants.ID_CLIENT_LABEL,idClient);
             payload.put(Constants.STATE_LABEL,managementArmament.stateGame);
             jMessage.put(Constants.PAYLOAD_LABEL,payload);
-            System.out.println("Enviando nuevo stado:" + jMessage.toString());
+            System.out.println("###############3TODOS" + jMessage.toString());
             client.salida.writeObject(jMessage.toString());
         } catch (IOException e) {
             System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());

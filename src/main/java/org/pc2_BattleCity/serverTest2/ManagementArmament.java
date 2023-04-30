@@ -26,11 +26,11 @@ public class ManagementArmament {
         return stateGame;
     }
 
-    public void setNewState(JSONObject newState) {
+    public synchronized void setNewState(JSONObject newState) {
         stateGame = newState;
     }
 
-    public void addObject(JSONObject object, String type) {
+    public synchronized void addObject(JSONObject object, String type) {
         try {
             object.put(Constants.ID_OBJECT_LABEL, idAvailable);
             JSONArray currArr = stateGame.getJSONArray(type);
@@ -73,7 +73,7 @@ public class ManagementArmament {
         for (Object objAux : stateGame.getJSONArray(type)
         ) {
             JSONObject obj = new JSONObject((objAux).toString());
-            if (obj.get(Constants.ID_OBJECT_LABEL) == object.get(Constants.ID_OBJECT_LABEL)) {
+            if (obj.get(Constants.ID_OBJECT_LABEL).equals(object.get(Constants.ID_OBJECT_LABEL))) {
                 break;
             }
             index++;

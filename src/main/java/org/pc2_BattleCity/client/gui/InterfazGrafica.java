@@ -38,21 +38,36 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         this.state = state;
     }
 
+    public JSONObject getSate() {
+        return state;
+    }
 
-    private JSONObject searchObject(String type, int idClient) {
-        JSONObject objEntontrado = new JSONObject();
-        JSONArray arr = state.getJSONArray(type);
-
-        for (Object objAux : (JSONArray) arr) {
-
+    private int searchObject(String type, JSONObject object) {
+        int index = 0;
+        for (Object objAux : state.getJSONArray(type)
+        ) {
             JSONObject obj = new JSONObject((objAux).toString());
+            if (obj.get(Constants.ID_OBJECT_LABEL).equals(object.get(Constants.ID_OBJECT_LABEL))) {
+                break;
+            }
+            index++;
+        }
+        return index;
+    }
 
-            if (obj.getInt(Constants.ID_OWNER_LABEL) == (idClient)) {
-                objEntontrado = obj;
+    public JSONObject searchObjectByIdClient(int idClient,String type){
+
+       JSONObject objetoEncontrado = new JSONObject();
+        for (Object objAux : state.getJSONArray(type)
+        ) {
+            JSONObject obj = new JSONObject((objAux).toString());
+            if (obj.get(Constants.ID_OWNER_LABEL).equals(idClient)){
+                objetoEncontrado = obj;
                 break;
             }
         }
-        return objEntontrado;
+        return objetoEncontrado;
+
     }
 
     public InterfazGrafica(JSONObject state, int idClient) {
@@ -95,16 +110,16 @@ public class InterfazGrafica extends JFrame implements KeyListener {
     }
 
 
-    public void Render(){
+    public void Render() {
         JSONArray tanques = state.getJSONArray(Constants.TANQUES_LABEL);
 
-        int index = 0;
-        for (Object tanqueAux: tanques) {
+//        int index = 0;
+        for (Object tanqueAux : tanques) {
             JSONObject tanque = new JSONObject(tanqueAux.toString());
-            gameBoardCanvas.p[index] = new ImagePanel(tanque);
-            index++;
+            gameBoardCanvas.p[tanque.getInt(Constants.ID_OWNER_LABEL)] = new ImagePanel(tanque);
+//            index++;
         }
-        
+
 //        gameBoardCanvas.p[idClient].setPosition(
 //                ((JSONObject) tanques.get(idClient)).getInt(Constants.X_POSITION_LABEL),
 //                ((JSONObject)tanques.get(idClient)).getInt(Constants.Y_POSITION_LABEL)
@@ -145,7 +160,6 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         }
 
 
-
     }
 
     //Busac tanque por id owner
@@ -157,8 +171,12 @@ public class InterfazGrafica extends JFrame implements KeyListener {
     public void keyReleased(KeyEvent e) {
     }
 
+
     public class GameBoardCanvas extends JPanel {
-        ImagePanel[] p= new ImagePanel[10];//10 jugadores
+
+        //        HashMap<Integer,ImagePanel> p = new HashMap<>();
+        public ImagePanel[] p = new ImagePanel[10];//10 jugadores
+
         EaglePanel e;
 
         @Override
@@ -172,13 +190,18 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             //Pintando tanques
 
 
-
             JSONArray tanques = state.getJSONArray(Constants.TANQUES_LABEL);
 
             for (Object tAux : (JSONArray) tanques) {
 
                 JSONObject tanque = new JSONObject((tAux).toString());
-                p[tanque.getInt(Constants.ID_OWNER_LABEL)].paintComponent(g);
+
+                System.out.println("idOwner=" + tanque.getInt(Constants.ID_OWNER_LABEL));
+                System.out.println("Tanque:" + tanque);
+                if(p[tanque.getInt(Constants.ID_OWNER_LABEL)]!=null)
+                {
+                    p[tanque.getInt(Constants.ID_OWNER_LABEL)].paintComponent(g);
+                }
 
             }
 
@@ -209,11 +232,11 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         g2d.fillRect(x * GRIDSIZE, y * GRIDSIZE, GRIDSIZE, GRIDSIZE);
     }
 
-    private int [][] getMatrix(JSONArray map) {
+    private int[][] getMatrix(JSONArray map) {
         int[][] mapInt = new int[map.length()][map.length()];
         for (int i = 0; i < map.length(); i++) {
             for (int j = 0; j < map.length(); j++) {
-                mapInt[i][j] = (int) ((JSONArray)map.get(i)).get(j);
+                mapInt[i][j] = (int) ((JSONArray) map.get(i)).get(j);
             }
         }
         return mapInt;
@@ -221,16 +244,15 @@ public class InterfazGrafica extends JFrame implements KeyListener {
 
     private void crearObjetos(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        int [][] mapa = getMatrix((JSONArray) state.get("mapa"));
+        int[][] mapa = getMatrix((JSONArray) state.get("mapa"));
 
-        for(int j=0; j<mapa.length; ++j){
-            for(int i=0; i<mapa.length; ++i){
+        for (int j = 0; j < mapa.length; ++j) {
+            for (int i = 0; i < mapa.length; ++i) {
 
-                if(mapa[i][j] == 1){
-                    dibujaMetal(i,j,g2d);
-                }
-                else if(mapa[i][j]==2){
-                    dibujaLadrillo(i,j,g2d);
+                if (mapa[i][j] == 1) {
+                    dibujaMetal(i, j, g2d);
+                } else if (mapa[i][j] == 2) {
+                    dibujaLadrillo(i, j, g2d);
                 }
             }
         }
@@ -281,8 +303,10 @@ public class InterfazGrafica extends JFrame implements KeyListener {
     private void moverJugador(int idClient, Direccion direccion) {
 
 //        Tanque t = juego.getTanque(jugador);
-        int [][] mapa = getMatrix((JSONArray) state.get("mapa"));
-        JSONObject tAux = searchObject(Constants.TANQUES_LABEL,idClient);
+        int[][] mapa = getMatrix((JSONArray) state.get("mapa"));
+        System.out.println(".................................................");
+        JSONObject tAux = searchObjectByIdClient(idClient,Constants.TANQUES_LABEL);
+        System.out.println(".................................................");
         Tanque t = new Tanque(
                 tAux.getInt(Constants.ID_OBJECT_LABEL),
                 tAux.getInt(Constants.ID_OWNER_LABEL),
@@ -292,55 +316,66 @@ public class InterfazGrafica extends JFrame implements KeyListener {
                 tAux.getInt(Constants.SPEED_LABEL));
 
 
-        if(t.getDireccion()!=direccion){
-            System.out.println("Camia direcion a"+direccion);
+        if (t.getDireccion() != direccion) {
+            System.out.println("Camia direcion a" + direccion);
             t.setDireccion(direccion);
             //Actualizando el estado
-            Cliente.managementArmament.setObject(t.getTanqueJsonObject(),Constants.TANQUES_LABEL);
-            setState(Cliente.managementArmament.getStateGame());
+
+            setObjectStete(Constants.TANQUES_LABEL,t.getTanqueJsonObject());
 //            Render();
             //            gameBoardCanvas.repaint();
             //Ya que se volvera a renderizar cada que cambia el estado
             return;
         }
 
-        int x = t.getX(), y=t.getY();
-        if(direccion.equals(Direccion.TOP_DIRECTION)){
+        int x = t.getX(), y = t.getY();
+        if (direccion.equals(Direccion.TOP_DIRECTION)) {
 
-            for(int i=0; i<3;i++){
-                if(mapa[x+i][ y-1]!=0){
+            for (int i = 0; i < 3; i++) {
+                if (mapa[x + i][y - 1] != 0) {
                     return;
                 }
             }
-            System.out.println("Moviendoce a "+direccion);
-        }
-        else if(direccion.equals(Direccion.RIGHT_DIRECTION)){
-            for(int i=0; i<3;i++){
-                if(mapa[x+3][ y+i]!=0){
+            System.out.println("Moviendoce a " + direccion);
+        } else if (direccion.equals(Direccion.RIGHT_DIRECTION)) {
+            for (int i = 0; i < 3; i++) {
+                if (mapa[x + 3][y + i] != 0) {
                     return;
                 }
             }
-            System.out.println("Moviendoce a "+direccion);
-        }
-        else if(direccion.equals(Direccion.BOTTOM_DIRECTION)){
-            for(int i=0; i<3;i++){
-                if(mapa[x+i][ y+3]!=0){
+            System.out.println("Moviendoce a " + direccion);
+        } else if (direccion.equals(Direccion.BOTTOM_DIRECTION)) {
+            for (int i = 0; i < 3; i++) {
+                if (mapa[x + i][y + 3] != 0) {
                     return;
                 }
             }
-            System.out.println("Moviendoce a "+direccion);
-        }
-        else if(direccion.equals(Direccion.LEFT_DIRECTION)){
-            for(int i=0; i<3;i++){
-                if(mapa[x-1][ y+i]!=0){
+            System.out.println("Moviendoce a " + direccion);
+        } else if (direccion.equals(Direccion.LEFT_DIRECTION)) {
+            for (int i = 0; i < 3; i++) {
+                if (mapa[x - 1][y + i] != 0) {
                     return;
                 }
             }
-            System.out.println("Moviendoce a "+direccion);
+            System.out.println("Moviendoce a " + direccion);
         }
         t.mover(direccion);
-        Cliente.managementArmament.setObject(t.getTanqueJsonObject(),Constants.TANQUES_LABEL);
-        setState(Cliente.managementArmament.getStateGame());
+
+        setObjectStete( Constants.TANQUES_LABEL,t.getTanqueJsonObject());
+
+    }
+
+    public void setObjectStete( String type,JSONObject object) {
+
+        try {
+            int index = searchObject(type,object);
+            JSONArray arr = state.getJSONArray(type);
+            arr.put(index, object);
+            state.put(type, arr);
+        } catch (Exception e) {
+            System.out.println(e + "Estoy aqui");
+        }
+
     }
 
 //    private void dispararJugador(int jugador, Direccion direccion) {
@@ -408,7 +443,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
 
         public ImagePanel(JSONObject t) {
             this.t = t;
-            System.out.println("\nRUNBA:"+this.t.toString());
+            System.out.println("\nRUNBA:" + this.t.toString());
             this.x = (t.getInt(Constants.X_POSITION_LABEL)) * GRIDSIZE;
             this.y = (t.getInt(Constants.Y_POSITION_LABEL)) * GRIDSIZE;
             try {
@@ -475,7 +510,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
-            g2d.drawImage(img, x*GRIDSIZE, y*GRIDSIZE,null); // see javadoc for more info on the parameters
+            g2d.drawImage(img, x * GRIDSIZE, y * GRIDSIZE, null); // see javadoc for more info on the parameters
         }
 
     }
@@ -485,20 +520,19 @@ public class InterfazGrafica extends JFrame implements KeyListener {
      * Revisador de estado
      * Para renderizar la pantalla, si esta cambia
      */
-    public class ThreadRevisaStado extends Thread{
+    public class ThreadRevisaStado extends Thread {
         @Override
         public void run() {
-            while (true){
+            while (true) {
                 try {
-                    Thread.sleep(100);
-                    if(!ComplementFunctions.isEqualJSONs(beforeState,state)){
+                    Thread.sleep(20);
+                    if (!ComplementFunctions.isEqualJSONs(beforeState, state)) {
                         //Envia a los demas BroadCasts
-                        Cliente.managementArmament.setNewState(state);
-                        Cliente.sendStateToServer();
-                        System.out.print("Cambio estado (Renderizando):"+state);
+                        Cliente.sendStateToServer(state);
+                        System.out.print("Cambio estado (Renderizando):" + state);
                         Render();
                     }
-                    beforeState = new JSONObject (state.toString());
+                    beforeState = new JSONObject(state.toString());
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 } catch (IOException e) {
