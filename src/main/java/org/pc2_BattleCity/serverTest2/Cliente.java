@@ -131,7 +131,7 @@ public class Cliente {
         }else{
             System.out.println("El jugador con id "+msj.getInt(Constants.ID_CLIENT_LABEL)+" Presiono "+msj.getInt(Constants.PAYLOAD_LABEL));
 
-//            juego.window.actionBeforeKeyPressed(msj.getInt(Constants.PAYLOAD_LABEL));
+//            juego.window.actionBeforeKeyPressed(msj.getInt(Constants.ID_CLIENT_LABEL),msj.getInt(Constants.PAYLOAD_LABEL));
         }
 
     }

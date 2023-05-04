@@ -59,8 +59,13 @@ public class InterfazGrafica extends JFrame implements KeyListener {
 
     }
 
-    public void actionBeforeKeyPressed(int key){
+    public void actionBeforeKeyPressed(int id,int key){
 
+        //Accion de pendiendo del id
+
+        //Comparar si es id del mismo o de otro
+
+        //para mover un determinado elemento
 
         switch (key) {
             case KeyEvent.VK_W:
