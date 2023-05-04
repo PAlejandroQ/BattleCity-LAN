@@ -1,5 +1,6 @@
 package org.pc2_BattleCity.serverTest2;
 
+import org.pc2_BattleCity.client.gui.Airport;
 import org.pc2_BattleCity.client.gui.Juego;
 
 import java.io.IOException;
@@ -11,12 +12,12 @@ import java.util.Scanner;
 public class Cliente {
 
 
-    private int id;//Id que identifica al usuario
-    public Juego juego;
-    private ObjectOutputStream salida;
-    private Scanner scanner;
+    static private int id;//Id que identifica al usuario
+    static public Juego juego;
+    static private ObjectOutputStream salida;
+    static private Scanner scanner;
 
-    public void setJuego(Juego juegoEnlazado) {
+    static public void setJuego(Juego juegoEnlazado) {
         juego = juegoEnlazado;
     }
 
@@ -25,7 +26,7 @@ public class Cliente {
     }
 
 
-    public void iniciar() {
+    static public void iniciar() {
         try {
             Socket socket = new Socket("localhost", 5000);
             System.out.println("Conectado al servidor");
@@ -70,7 +71,7 @@ public class Cliente {
                         while (true) {
                             // Leer el mensaje recibido y mostrarlo en pantalla
                             String mensaje = (String) entrada.readObject();
-                            analizaMensajeRecived(mensaje);
+                            receivedMessage(mensaje);
                             juego.addMessageFromServer(mensaje);
                             System.out.println(mensaje);
                         }
@@ -88,16 +89,11 @@ public class Cliente {
 
 
 
-    private void analizaMensajeRecived(String message){
-        if(message.substring(0,11)=="Your id is:") {
-            id = Integer.parseInt(message.substring(message.length() - 1));
-        }
-        else{//Acualizar algunos objetos
-
-        }
+    static private void receivedMessage(String message){
+        Airport.unpackMessageBeforeReceived(message);
     }
 
-    public void enviarMensaje(String mensaje) throws IOException {
+    static public void enviarMensaje(String mensaje) throws IOException {
         salida.writeObject(mensaje);
     }
 
