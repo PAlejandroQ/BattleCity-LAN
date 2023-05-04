@@ -1,5 +1,7 @@
 package org.pc2_BattleCity.client.gui;
 
+import org.pc2_BattleCity.serverTest2.Cliente;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -53,13 +55,13 @@ public class InterfazGrafica extends JFrame implements KeyListener {
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
 
-        try {
-            this.juego.conexionCliente.enviarMensaje(String.valueOf(key));
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+        Cliente.airport.packMessageAndSend(key);
 
-        // Mueve el tanque según la tecla presionada
+    }
+
+    public void actionBeforeKeyPressed(int key){
+
+
         switch (key) {
             case KeyEvent.VK_W:
                 moverJugador(0, Direccion.ARRIBA);
@@ -78,9 +80,6 @@ public class InterfazGrafica extends JFrame implements KeyListener {
                 break;
         }
 
-        // Actualiza la posición del JLabel del tanque
-        gameBoardCanvas.p[0].setPosition(juego.getTanque(0).getX(), juego.getTanque(0).getY());
-        gameBoardCanvas.repaint();
     }
 
     public void keyTyped(KeyEvent e) {}
@@ -93,7 +92,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         int numTanques = 1;
         @Override
         public void paintComponent(Graphics g){
-            System.out.println("REPINTANDO");
+//            System.out.println("REPINTANDO");
             super.paintComponent(g);
             crearObjetos(g);
             setBackground(new Color(4,6,46));
@@ -245,7 +244,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             }
             g.setColor(Color.white);
             g.fillOval(bala.getX()*GRIDSIZE, bala.getY()*GRIDSIZE, GRIDSIZE, GRIDSIZE);
-            System.out.println(bala.getX() + "|" + bala.getY());
+//            System.out.println(bala.getX() + "|" + bala.getY());
         }
     }
 
@@ -295,7 +294,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
                 ImageIcon icon = new ImageIcon(image.getScaledInstance(3*GRIDSIZE, 3*GRIDSIZE,Image.SCALE_SMOOTH));
                 img = icon.getImage();
             } catch (IOException ex) {
-                System.out.println("No se encontró imagen w");
+//                System.out.println("No se encontró imagen w");
             }
         }
 

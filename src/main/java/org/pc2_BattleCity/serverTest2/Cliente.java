@@ -1,5 +1,7 @@
 package org.pc2_BattleCity.serverTest2;
 
+import org.json.JSONObject;
+import org.pc2_BattleCity.Constants;
 import org.pc2_BattleCity.client.gui.Airport;
 import org.pc2_BattleCity.client.gui.Juego;
 
@@ -12,18 +14,20 @@ import java.util.Scanner;
 public class Cliente {
 
 
-    static private int id;//Id que identifica al usuario
+    static private int idClient;//Id que identifica al usuario
     static public Juego juego;
-    static private ObjectOutputStream salida;
+    static public Airport airport;
+    static public ObjectOutputStream salida;
     static private Scanner scanner;
 
-    static public void setJuego(Juego juegoEnlazado) {
-        juego = juegoEnlazado;
-    }
+//    static public void setJuego(Juego juegoEnlazado) {
+//        juego = juegoEnlazado;
+//    }
 
-    public Cliente(Juego juegoEnlazado){
-        juego = juegoEnlazado;
-    }
+//    public Cliente(Juego juegoEnlazado){
+//        juego = juegoEnlazado;
+//    }
+    private static boolean suscrito = false;
 
 
     static public void iniciar() {
@@ -33,30 +37,27 @@ public class Cliente {
 
             // Obtener el nombre de usuario
             scanner = new Scanner(System.in);
-            System.out.print("Ingrese su nombre de usuario: ");
-            String nombreUsuario = scanner.nextLine();
+//            System.out.print("Ingrese su nombre de usuario: ");
+//            String nombreUsuario = scanner.nextLine();
 
             // Obtener el canal de salida del socket
             salida = new ObjectOutputStream(socket.getOutputStream());
 
             // Enviar el nombre de usuario al servidor
-            salida.writeObject(nombreUsuario);
+//            salida.writeObject(nombreUsuario);
 
             // Delegar thread de salida
             Thread salidaThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    try {
+
                         String mensaje = "";
                         while (true) {
-                            // Leer el mensaje a enviar desde la consola
+//                             Leer el mensaje a enviar desde la consola
                             System.out.print(">> ");
                             mensaje = scanner.nextLine();
-                            enviarMensaje(mensaje);
+                            sendSimpleMessageToServer(mensaje);
                         }
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
                 }
             });
             salidaThread.start();
@@ -71,8 +72,11 @@ public class Cliente {
                         while (true) {
                             // Leer el mensaje recibido y mostrarlo en pantalla
                             String mensaje = (String) entrada.readObject();
-                            receivedMessage(mensaje);
-                            juego.addMessageFromServer(mensaje);
+
+                            if(mensaje.substring(0,1).equals("{")){
+                                receiveMessage(mensaje);
+                            }
+//                            juego.addMessageFromServer(mensaje);
                             System.out.println(mensaje);
                         }
                     } catch (IOException | ClassNotFoundException ex) {
@@ -89,15 +93,57 @@ public class Cliente {
 
 
 
-    static private void receivedMessage(String message){
-        Airport.unpackMessageBeforeReceived(message);
+
+    private static void sendSimpleMessageToServer(String message){
+        JSONObject msj = new JSONObject();
+        msj.put(Constants.ID_CLIENT_LABEL,idClient);
+        msj.put(Constants.TYPE_REQUEST_LABEL,Constants.SIMPLE_MESSAGE_REQUEST);
+        msj.put(Constants.PAYLOAD_LABEL,message);
+        try{
+            salida.writeObject(msj);
+        }catch (IOException e){
+            System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
+        }
     }
 
-    static public void enviarMensaje(String mensaje) throws IOException {
-        salida.writeObject(mensaje);
+//    static private void receivedMessage(String message){
+//
+//        System.out.println(message);
+//
+//    }
+
+
+
+    static private void receiveMessage(String message){
+        System.out.println("Resibiendo 2:"+message);
+
+        if(!suscrito){
+            idClient = new JSONObject(message).getInt(Constants.ID_CLIENT_LABEL);
+            airport = new Airport(idClient);
+        }
+
+        JSONObject msj = airport.unpackMessageBeforeReceived(message);
+        suscrito =true;
+
+        String type = msj.getString(Constants.TYPE_REQUEST_LABEL);
+        if(type.equals(Constants.SIMPLE_MESSAGE_REQUEST)){
+            System.out.println("El jugador con id "+message);
+        }else{
+            System.out.println("El jugador con id "+msj.getInt(Constants.ID_CLIENT_LABEL)+" Presiono "+msj.getInt(Constants.PAYLOAD_LABEL));
+
+//            juego.window.actionBeforeKeyPressed(msj.getInt(Constants.PAYLOAD_LABEL));
+        }
+
     }
 
+//    static public void enviarMensaje(String mensaje) throws IOException {
+//        salida.writeObject(mensaje);
+//    }
 
+    public static void main(String[] args) {
+        juego =  new Juego();
+//        Cliente.iniciar();
+    }
 
 
 

@@ -1,32 +1,41 @@
 package org.pc2_BattleCity.client.gui;
 
 import org.json.JSONObject;
+import org.pc2_BattleCity.Constants;
 import org.pc2_BattleCity.serverTest2.Cliente;
 
 import java.io.IOException;
 
 public class Airport {
+    int idClient;
 
-    static public void unpackMessageBeforeReceived(String message) {
-        JSONObject msj = new JSONObject(message);
+    public Airport(int idClient){
+        this.idClient = idClient;
     }
 
-    public void packMessageAndSend(JSONObject message) {
+    public JSONObject unpackMessageBeforeReceived(String message) {
+        JSONObject msj = new JSONObject(message);
+        return msj;
 
+    }
+
+    public void packMessageAndSend(int keyBoard) {
 
         JSONObject msj = new JSONObject();
+        msj.put(Constants.ID_CLIENT_LABEL,idClient);
+        msj.put(Constants.TYPE_REQUEST_LABEL,Constants.KEYBOARD_MESSAGE_REQUEST);
+        msj.put(Constants.PAYLOAD_LABEL,keyBoard);
 
-        Thread envia = new EnviaThread(msj);
+
+        Thread envia = new EnviaThread(msj.toString());
         envia.start();
-
-
     }
 
     class EnviaThread extends Thread {
 
-        JSONObject message;
+        String message;
 
-        public EnviaThread(JSONObject message) {
+        public EnviaThread(String message) {
             this.message = message;
         }
 
@@ -34,7 +43,7 @@ public class Airport {
         public void run() {
             super.run();
             try {
-                Cliente.enviarMensaje(message.toString());
+                Cliente.salida.writeObject(message);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Queue;
 
 public class Juego {
-    InterfazGrafica window;
+    public InterfazGrafica window;
     private int numJugadores=1;
     public Mapa mapa;
     private List<Tanque> tanques;
@@ -29,7 +29,7 @@ public class Juego {
         this.enemigos = new ArrayList<>();
         crearTanques();
         crearEnemigos();
-        this.conexionCliente = new Cliente(this);
+//        this.conexionCliente = new Cliente(this);
         this.window = new InterfazGrafica(this);
         this.conexionCliente.iniciar();
         colaEntrantes  = new LinkedList<>();
@@ -177,8 +177,6 @@ public class Juego {
 
 
 
-    public static void main(String[] args) {
-        new Juego();
-    }
+
 }
 

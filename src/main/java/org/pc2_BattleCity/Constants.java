@@ -44,5 +44,15 @@ public class Constants {
 
 
 
+    //Types resuest
+
+    public static String ID_CLIENT_LABEL = "i";
+    public static String TYPE_REQUEST_LABEL = "t";
+    public static String SIMPLE_MESSAGE_REQUEST = "m";
+    public static String KEYBOARD_MESSAGE_REQUEST = "k";
+    public static String PAYLOAD_LABEL = "p";
+    public static  String ID_FRIED_LABEL = "f";
+
+
 
 }

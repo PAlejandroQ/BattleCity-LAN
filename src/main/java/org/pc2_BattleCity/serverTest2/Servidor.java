@@ -15,10 +15,10 @@ import javax.swing.*;
 
 public class Servidor {
     private final static int PUERTO = 5000;
-    private static ManagementArmament currentManagementArmament =  new ManagementArmament();;
+//    private static ManagementArmament currentManagementArmament =  new ManagementArmament();;
     private static ArrayList<ConexionCliente> clientesConectados = new ArrayList<>();
 
-    private static int[][] mapaNivel1 = Constants.MAPA_NIVEL_1.getMap();
+//    private static int[][] mapaNivel1 = Constants.MAPA_NIVEL_1.getMap();
 
 
 
@@ -30,7 +30,7 @@ public class Servidor {
 
         System.out.println("Servidor iniciado en el puerto " + PUERTO);
 
-        addMap();
+//        addMap();
 
         while (true) {
             Socket socketCliente = servidor.accept();
@@ -38,12 +38,9 @@ public class Servidor {
             ConexionCliente clienteConectado = new ConexionCliente(socketCliente,idAvailable);
             clientesConectados.add(clienteConectado);
 
-            //Agregamos al cliente
-            addClientsArmaments(idAvailable);
-            //Enviamos al cliente su id correspondiente
-            //Para que el cliente pueda actualizar el estado de sus objetos propios
 
-            sendMessageToOneClient("Your id is:"+idAvailable,idAvailable);
+
+            sendSimpleMessageToOneClient(idAvailable,"TU ID ES:"+idAvailable);
 
             new Thread(clienteConectado).start();
 
@@ -70,13 +67,12 @@ public class Servidor {
 
             Thread broadcastCliente = new Thread(() -> {
                 try {
-                    enviarMensajes("Bienvenido al chat.");
+                    sendSimpleMessageToOneClient(idClient,"Bienvenido al chat.");
                     nombreCliente = (String) entrada.readObject();
-                    enviarMensajes("El cliente " + nombreCliente + " se ha conectado.");
-
+//
                     while (true) {
-                        String mensaje = (String) entrada.readObject();
-                        enviarMensajes(nombreCliente + ": " + mensaje);
+                        String message = (String) entrada.readObject();
+                        sendBroadCastMessageKeyPressed(message);
                     }
                 } catch (IOException | ClassNotFoundException e) {
                     System.err.println("Error al leer el mensaje del cliente: " + e.getMessage());
@@ -90,7 +86,7 @@ public class Servidor {
 
         private void desconectarCliente() {
             clientesConectados.remove(this);
-            enviarMensajes("El cliente " + nombreCliente + " se ha desconectado.");
+            sendSimpleMessageToOneClient(idClient,"El cliente " + nombreCliente + " se ha desconectado.");
             try {
                 socketCliente.close();
             } catch (IOException e) {
@@ -102,47 +98,58 @@ public class Servidor {
     }
 
 
-    private static void enviarMensajes(String mensaje) {
-        System.out.println(mensaje);
+    private static void sendBroadCastMessageKeyPressed(String message) {
+
+
+        System.out.println("enviando key to bradcast:"+message);
+        //LLega y se distribuye sini analizar
+
         for (ConexionCliente cliente : clientesConectados) {
             try {
-                cliente.salida.writeObject(mensaje);
+                cliente.salida.writeObject(message);
             } catch (IOException e) {
                 System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
             }
         }
     }
-    private static void sendMessageToOneClient(String message,int idClient){
+    private static void sendSimpleMessageToOneClient(int idClient,String message){
+
+        JSONObject msj = new JSONObject();
+        msj.put(Constants.ID_CLIENT_LABEL,idClient);
+        msj.put(Constants.TYPE_REQUEST_LABEL,Constants.SIMPLE_MESSAGE_REQUEST);
+        msj.put(Constants.PAYLOAD_LABEL,message);
+
+        System.out.println("enviando simple message:"+msj);
         try{
-            clientesConectados.get(idClient).salida.writeObject(message);
+            clientesConectados.get(idClient).salida.writeObject(msj.toString());
         }catch (IOException e){
             System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
         }
     }
 
-    private static void addMap(){
-        //Aqui se agregara la configuracion del los bloques (mapa)
-        //Cada casilla sera como un objeto que se hara un seguimiento
-        //idOwner sera -1, dado que no le pernenece a ningun juagador
-        for (int i = 0; i < mapaNivel1.length; i++) {
-            for (int j = 0; j < mapaNivel1[i].length; j++) {
-                currentManagementArmament.addObject(ManagementArmament.createObject(-1,Integer.toString(mapaNivel1[i][j]),i,j,Constants.NEUTRAL_DIRECTION));
-            }
-        }
-    }
+//    private static void addMap(){
+//        //Aqui se agregara la configuracion del los bloques (mapa)
+//        //Cada casilla sera como un objeto que se hara un seguimiento
+//        //idOwner sera -1, dado que no le pernenece a ningun juagador
+//        for (int i = 0; i < mapaNivel1.length; i++) {
+//            for (int j = 0; j < mapaNivel1[i].length; j++) {
+//                currentManagementArmament.addObject(ManagementArmament.createObject(-1,Integer.toString(mapaNivel1[i][j]),i,j,Constants.NEUTRAL_DIRECTION));
+//            }
+//        }
+//    }
 
-    private static void addClientsArmaments(int idAvailable){
-        /**
-         * Agregando los objetos armamento iniciales, la base del jugador tambien se considera armament
-         */
-        //Agregando tanque
-        currentManagementArmament.addObject(ManagementArmament.createObject(idAvailable, Constants.TYPE_TANQUE_LABEL,2*Constants.GRIDSIZE,2*Constants.GRIDSIZE,Constants.TOP_DIRECTION));
-        //Agregando Base
-        currentManagementArmament.addObject(ManagementArmament.createObject(idAvailable,Constants.TYPE_BASE_LABEL,Constants.BASE_UBICATIONS[idAvailable][0],Constants.BASE_UBICATIONS[idAvailable][1],Constants.DIRECTIONS[idAvailable]));
-
-        //Las balas se agregaran en el transcurso
-
-    }
+//    private static void addClientsArmaments(int idAvailable){
+//        /**
+//         * Agregando los objetos armamento iniciales, la base del jugador tambien se considera armament
+//         */
+//        //Agregando tanque
+//        currentManagementArmament.addObject(ManagementArmament.createObject(idAvailable, Constants.TYPE_TANQUE_LABEL,2*Constants.GRIDSIZE,2*Constants.GRIDSIZE,Constants.TOP_DIRECTION));
+//        //Agregando Base
+//        currentManagementArmament.addObject(ManagementArmament.createObject(idAvailable,Constants.TYPE_BASE_LABEL,Constants.BASE_UBICATIONS[idAvailable][0],Constants.BASE_UBICATIONS[idAvailable][1],Constants.DIRECTIONS[idAvailable]));
+//
+//        //Las balas se agregaran en el transcurso
+//
+//    }
 }
 
 
