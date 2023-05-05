@@ -16,7 +16,7 @@ public class Client {
                 new Runnable() {
                     @Override
                     public void run() {
-                        tcpClient = new TCPClient("172.17.0.1", new TCPClient.OnMessageReceived() {
+                        tcpClient = new TCPClient("localhost", new TCPClient.OnMessageReceived() {
                             @Override
                             public void messageReceived(String message) {
                                 clientReceive(message);

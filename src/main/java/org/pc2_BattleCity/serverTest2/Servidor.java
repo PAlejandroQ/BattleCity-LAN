@@ -20,9 +20,6 @@ public class Servidor {
 
 //    private static int[][] mapaNivel1 = Constants.MAPA_NIVEL_1.getMap();
 
-
-
-
     public static void main(String[] args) throws IOException {
 
         int idAvailable = 0;

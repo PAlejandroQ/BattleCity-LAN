@@ -12,7 +12,7 @@ public class Juego {
     public InterfazGrafica window;
     private int numJugadores=1;
     public Mapa mapa;
-    private List<Tanque> tanques;
+    public List<Tanque> tanques;
     public List<Bala> balas;
     private List<Enemigo> enemigos;
 
@@ -27,12 +27,14 @@ public class Juego {
         this.tanques = new ArrayList<>();
         this.balas = new ArrayList<>();
         this.enemigos = new ArrayList<>();
-        crearTanques();
+        this.conexionCliente.iniciar();
+        colaEntrantes  = new LinkedList<>();
+
+
         crearEnemigos();
 //        this.conexionCliente = new Cliente(this);
         this.window = new InterfazGrafica(this);
-        this.conexionCliente.iniciar();
-        colaEntrantes  = new LinkedList<>();
+
     }
 
     public void addMessageFromServer(String datoDeServer){
@@ -40,16 +42,33 @@ public class Juego {
     }
 
     // Método para crear los tanques
-    private void crearTanques() {
+    public void crearTanque(int id) {
         // Crear los tanques y agregarlos a la lista de tanques
         /*Tanque tanque1 = new Tanque(0, 0, Direccion.ARRIBA, 1);
         Tanque tanque2 = new Tanque(mapa.getAncho() - 1, mapa.getAlto() - 1, Direccion.ABAJO, 1);
         tanques.add(tanque1);
         tanques.add(tanque2);*/
-        for(int i=0; i<numJugadores; ++i){
-            Tanque t = new Tanque(2,2,Direccion.ARRIBA, 1);
-            tanques.add(t);
+        Tanque t;
+        switch(id){
+            case 0:
+                t = new Tanque(2,2, Direccion.DERECHA, 1);
+                tanques.add(t);
+                break;
+            case 1:
+                t = new Tanque(35,2, Direccion.DERECHA, 1);
+                tanques.add(t);
+                break;
+            case 2:
+                t = new Tanque(35,35, Direccion.IZQUIERDA, 1);
+                tanques.add(t);
+                break;
+            case 3:
+                t = new Tanque(2,35, Direccion.IZQUIERDA, 1);
+                tanques.add(t);
+                break;
         }
+
+
     }
 
     // Método para crear los enemigos
@@ -169,6 +188,7 @@ public class Juego {
     public int getNumTanques(){
         return tanques.size();
     }
+
     public Tanque getTanque(int index){
         return tanques.get(index);
     }

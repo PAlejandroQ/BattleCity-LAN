@@ -121,9 +121,8 @@ public class Cliente {
             idClient = new JSONObject(message).getInt(Constants.ID_CLIENT_LABEL);
             airport = new Airport(idClient);
         }
-
-        JSONObject msj = airport.unpackMessageBeforeReceived(message);
         suscrito =true;
+        JSONObject msj = airport.unpackMessageBeforeReceived(message);
 
         String type = msj.getString(Constants.TYPE_REQUEST_LABEL);
         if(type.equals(Constants.SIMPLE_MESSAGE_REQUEST)){
@@ -131,7 +130,7 @@ public class Cliente {
         }else{
             System.out.println("El jugador con id "+msj.getInt(Constants.ID_CLIENT_LABEL)+" Presiono "+msj.getInt(Constants.PAYLOAD_LABEL));
 
-//            juego.window.actionBeforeKeyPressed(msj.getInt(Constants.ID_CLIENT_LABEL),msj.getInt(Constants.PAYLOAD_LABEL));
+            juego.window.actionAfterKeyPressed(msj.getInt(Constants.ID_CLIENT_LABEL),msj.getInt(Constants.PAYLOAD_LABEL));
         }
 
     }
