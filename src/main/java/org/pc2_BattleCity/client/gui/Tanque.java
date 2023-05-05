@@ -3,6 +3,7 @@ package org.pc2_BattleCity.client.gui;
 public class Tanque {
     private int x; // posición x del tanque
     private int y; // posición y del tanque
+    private int vidas = 5;
     private Direccion direccion; // dirección del tanque (1=arriba, 2=derecha, 3=abajo, 4=izquierda)
     private boolean vivo; // indica si el tanque está vivo o muerto
     private int velocidad; // velocidad de movimiento del tanque
@@ -44,7 +45,7 @@ public class Tanque {
     }
 
     public boolean isVivo() {
-        return vivo;
+        return vidas>0;
     }
 
     public void setVivo(boolean vivo) {
@@ -94,6 +95,10 @@ public class Tanque {
     }
 
     public void recibirDanio(int potencia) {
+        vidas--;
+        if(vidas==0){
+            return;
+        }
     }
 
     public Direccion getDireccionCanon() {

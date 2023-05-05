@@ -67,29 +67,35 @@ public class InterfazGrafica extends JFrame implements KeyListener {
                 juego.crearTanque(i);
                 gameBoardCanvas.p[i] = new ImagePanel(i);
             }
+            for(int i=0; i<=id; i++){
+                juego.posicionInicial(juego.tanques.get(i), i);
+            }
             gameBoardCanvas.numTanques = juego.getNumTanques();
             gameBoardCanvas.repaint();
         }
-        //Accion de pendiendo del id
-        //Comparar si es id del mismo o de otro
-        //para mover un determinado elemento
-        switch (key) {
-            case KeyEvent.VK_W:
-                moverJugador(id, Direccion.ARRIBA);
-                break;
-            case KeyEvent.VK_A:
-                moverJugador(id, Direccion.IZQUIERDA);
-                break;
-            case KeyEvent.VK_S:
-                moverJugador(id, Direccion.ABAJO);
-                break;
-            case KeyEvent.VK_D:
-                moverJugador(id, Direccion.DERECHA);
-                break;
-            case KeyEvent.VK_SPACE:
-                dispararJugador(id, juego.getTanque(id).getDireccion());
-                break;
+        if(juego.getTanque(id).isVivo()){
+            //Accion de pendiendo del id
+            //Comparar si es id del mismo o de otro
+            //para mover un determinado elemento
+            switch (key) {
+                case KeyEvent.VK_W:
+                    moverJugador(id, Direccion.ARRIBA);
+                    break;
+                case KeyEvent.VK_A:
+                    moverJugador(id, Direccion.IZQUIERDA);
+                    break;
+                case KeyEvent.VK_S:
+                    moverJugador(id, Direccion.ABAJO);
+                    break;
+                case KeyEvent.VK_D:
+                    moverJugador(id, Direccion.DERECHA);
+                    break;
+                case KeyEvent.VK_SPACE:
+                    dispararJugador(id, juego.getTanque(id).getDireccion());
+                    break;
+            }
         }
+
     }
 
     public void keyTyped(KeyEvent e) {
@@ -112,7 +118,9 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             e.paintComponent(g);
             for (int i = 0; i < numTanques; ++i) {
                 System.out.println("Tanque #" + i);
-                p[i].paintComponent(g);
+                if(juego.getTanque(i).isVivo()){
+                    p[i].paintComponent(g);
+                }
             }
         }
 

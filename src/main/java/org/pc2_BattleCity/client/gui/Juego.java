@@ -48,27 +48,26 @@ public class Juego {
         Tanque tanque2 = new Tanque(mapa.getAncho() - 1, mapa.getAlto() - 1, Direccion.ABAJO, 1);
         tanques.add(tanque1);
         tanques.add(tanque2);*/
-        Tanque t;
+        Tanque t = new Tanque(0,0, Direccion.ARRIBA,1);
+        posicionInicial(t, id);
+        tanques.add(t);
+    }
+
+    public void posicionInicial(Tanque t, int id){
         switch(id){
             case 0:
-                t = new Tanque(2,2, Direccion.DERECHA, 1);
-                tanques.add(t);
+                t.setX(2); t.setY(2);t.setDireccion(Direccion.DERECHA);
                 break;
             case 1:
-                t = new Tanque(35,2, Direccion.DERECHA, 1);
-                tanques.add(t);
+                t.setX(35); t.setY(2);t.setDireccion(Direccion.ABAJO);
                 break;
             case 2:
-                t = new Tanque(35,35, Direccion.IZQUIERDA, 1);
-                tanques.add(t);
+                t.setX(35); t.setY(35);t.setDireccion(Direccion.IZQUIERDA);
                 break;
             case 3:
-                t = new Tanque(2,35, Direccion.IZQUIERDA, 1);
-                tanques.add(t);
+                t.setX(2); t.setY(35);t.setDireccion(Direccion.ARRIBA);
                 break;
         }
-
-
     }
 
     // Método para crear los enemigos
@@ -92,7 +91,7 @@ public class Juego {
         Tanque tanque = tanques.get(indiceTanque);
         Bala bala;
         if(tanque.getDireccion()==Direccion.ARRIBA){
-            bala = new Bala(tanque.getX() + 1, tanque.getY(), tanque.getDireccionCanon(), 1);
+            bala = new Bala(tanque.getX() + 1, tanque.getY()-1, tanque.getDireccionCanon(), 1);
         }
         else if(tanque.getDireccion()==Direccion.DERECHA){
             bala = new Bala(tanque.getX() + 3, tanque.getY()+1, tanque.getDireccionCanon(), 1);
@@ -101,7 +100,7 @@ public class Juego {
             bala = new Bala(tanque.getX() + 1, tanque.getY()+3, tanque.getDireccionCanon(), 1);
         }
         else{
-            bala = new Bala(tanque.getX(), tanque.getY()+1, tanque.getDireccionCanon(), 1);
+            bala = new Bala(tanque.getX()-1, tanque.getY()+1, tanque.getDireccionCanon(), 1);
         }
 
         balas.add(bala);
@@ -126,17 +125,20 @@ public class Juego {
         // Mover cada bala y comprobar si choca con un tanque o un enemigo
         boolean hit=false;
         while(!hit){
-                bala.mover();
                 window.actualizarBalas();
                 //System.out.println("ACTUALIZA BALA: " + bala.getX() + " " + bala.getY());
                 // Comprobar si la bala choca con un tanque
                 for (Tanque tanque : tanques) {
-                    if (bala.getX() == tanque.getX() && bala.getY() == tanque.getY()) {
-                        // La bala chocó con un tanque
-                        tanque.recibirDanio(bala.getPotencia());
-                        balas.remove(bala);
-                        hit=true;
-                        break;
+                    for(int i=1;i<3;++i){
+                        for(int j=1;j<3;++j){
+                            if (bala.getX() == tanque.getX()+i && bala.getY() == tanque.getY()+j) {
+                                // La bala chocó con un tanque
+                                tanque.recibirDanio(bala.getPotencia());
+                                balas.remove(bala);
+                                hit=true;
+                                break;
+                            }
+                        }
                     }
                 }
 
@@ -172,6 +174,7 @@ public class Juego {
                     hit=true;
                     continue;
                 }
+                bala.mover();
 
             try{
                 synchronized (t){
