@@ -28,7 +28,6 @@ public class InterfazGrafica extends JFrame implements KeyListener {
 
         gameBoardCanvas.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         //gameBoardCanvas.p[0] = new ImagePanel(0);
-        gameBoardCanvas.e = new EaglePanel();
         this.add(gameBoardCanvas);
         this.setPreferredSize(new Dimension(WIDTH + 10, HEIGHT + 40));
         this.pack();
@@ -66,6 +65,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             for(int i=juego.getNumTanques(); i<=id;i++) {
                 juego.crearTanque(i);
                 gameBoardCanvas.p[i] = new ImagePanel(i);
+                gameBoardCanvas.e[i] = new EaglePanel(i);
             }
             for(int i=0; i<=id; i++){
                 juego.posicionInicial(juego.tanques.get(i), i);
@@ -105,8 +105,8 @@ public class InterfazGrafica extends JFrame implements KeyListener {
     }
 
     class GameBoardCanvas extends JPanel {
-        ImagePanel p[] = new ImagePanel[10];
-        EaglePanel e;
+        ImagePanel p[] = new ImagePanel[4];
+        EaglePanel e[] = new EaglePanel[4];
         int numTanques = 0;
 
         @Override
@@ -115,11 +115,12 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             super.paintComponent(g);
             crearObjetos(g);
             setBackground(new Color(4, 6, 46));
-            e.paintComponent(g);
+
             for (int i = 0; i < numTanques; ++i) {
                 System.out.println("Tanque #" + i);
                 if(juego.getTanque(i).isVivo()){
                     p[i].paintComponent(g);
+                    e[i].paintComponent(g);
                 }
             }
         }
@@ -305,7 +306,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             this.x = t.getX() * GRIDSIZE;
             this.y = t.getY() * GRIDSIZE;
             try {
-                image = ImageIO.read(new File("src/main/java/org/pc2_BattleCity/client/gui/tank.png"));
+                image = ImageIO.read(new File("src/main/java/org/pc2_BattleCity/client/gui/tank_"+jugador+".png"));
                 ImageIcon icon = new ImageIcon(image.getScaledInstance(3 * GRIDSIZE, 3 * GRIDSIZE, Image.SCALE_SMOOTH));
                 img = icon.getImage();
             } catch (IOException ex) {
@@ -354,9 +355,24 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         private BufferedImage image;
         Image img;
 
-        public EaglePanel() {
+        public EaglePanel(int jugador) {
+            switch (jugador){
+                case 0:
+                    x=18; y=2;
+                    break;
+                case 1:
+                    x=35; y=17;
+                    break;
+                case 2:
+                    x=18; y=34;
+                    break;
+                case 3:
+                    x=2; y=17;
+                    break;
+
+            }
             try {
-                image = ImageIO.read(new File("src/main/java/org/pc2_BattleCity/client/gui/eagle.png"));
+                image = ImageIO.read(new File("src/main/java/org/pc2_BattleCity/client/gui/eagle_"+jugador+".png"));
                 ImageIcon icon = new ImageIcon(image.getScaledInstance(4 * GRIDSIZE, 4 * GRIDSIZE, Image.SCALE_SMOOTH));
                 img = icon.getImage();
             } catch (IOException ex) {
