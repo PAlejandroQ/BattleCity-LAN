@@ -17,22 +17,6 @@ public class Mapa {
 
     public void generateMap(int nivel){
         if(nivel==1){
-            this.casillas[16][ancho-3]=2;
-            this.casillas[16][ancho-4]=2;
-            this.casillas[16][ancho-5]=2;
-            this.casillas[16][ancho-6]=2;
-            this.casillas[17][ancho-3]=2;
-            this.casillas[17][ancho-4]=2;
-            this.casillas[17][ancho-5]=2;
-            this.casillas[17][ancho-6]=2;
-            this.casillas[22][ancho-3]=2;
-            this.casillas[22][ancho-4]=2;
-            this.casillas[22][ancho-5]=2;
-            this.casillas[22][ancho-6]=2;
-            this.casillas[23][ancho-3]=2;
-            this.casillas[23][ancho-4]=2;
-            this.casillas[23][ancho-5]=2;
-            this.casillas[23][ancho-6]=2;
             for(int i=18; i<22;++i){
                 this.casillas[i][ancho-8]=2;
                 this.casillas[i][ancho-7]=2;
@@ -102,7 +86,57 @@ public class Mapa {
                 }
             }
         }
+        //Base de jugador 1
+        for(int j=0; j<8;++j){
+            for(int i=0; i<8; ++i){
+                if(i<=1 || i>=6){
+                    this.casillas[16+i][j] = 1;
+                }
+                if (j >= 6) {
+                    if(i>1 && i<6){
+                        this.casillas[16+i][j]=2;
+                    }
+                }
+            }
+        }
+        //Base de jugador 2
+        for(int j=0; j<8;++j){
+            for(int i=0; i<8; ++i){
+                if(j<=1 || j>=6){
+                    this.casillas[32+i][15+j] = 1;
+                }
+                else{
+                    this.casillas[32+0][15+j] = 2;
+                    this.casillas[32+1][15+j] = 2;
+                }
+            }
+        }
+        //Base de jugador 3
+        for(int j=0; j<8;++j){
+            for(int i=0; i<8; ++i){
+                if(i<=1 || i>=6){
+                    this.casillas[16+i][32+j] = 1;
+                }
+                if (j <= 1) {
+                    if(i>1 && i<6){
+                        this.casillas[16+i][32+j]=2;
+                    }
+                }
+            }
+        }
 
+        //Base de jugador 4
+        for(int j=0; j<8;++j){
+            for(int i=0; i<8; ++i){
+                if(j<=1 || j>=6){
+                    this.casillas[i][15+j] = 1;
+                }
+                else{
+                    this.casillas[6][15+j] = 2;
+                    this.casillas[7][15+j] = 2;
+                }
+            }
+        }
     }
 
     public int getCasilla(int x, int y) {
