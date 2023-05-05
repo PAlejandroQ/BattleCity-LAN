@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.Queue;
 
 public class Juego {
+
+    public StartWindow startWindow;
     public InterfazGrafica window;
+
     private int numJugadores=1;
     public Mapa mapa;
     public List<Tanque> tanques;
@@ -17,24 +20,31 @@ public class Juego {
     private List<Enemigo> enemigos;
 
     public Cliente conexionCliente;
+    public String nivel;
 
     Queue<String> colaEntrantes;
 
+
+
     // Constructor
     public Juego() {
+
+        this.startWindow = new StartWindow(this);
+
+    }
+
+    public void StartJuagoAfterSuccessfulConnection(String ipServer,String nivel){
         // Crear el mapa, los tanques, las balas y los enemigos
+        this.nivel = nivel;
         this.mapa = new Mapa(1);
         this.tanques = new ArrayList<>();
         this.balas = new ArrayList<>();
         this.enemigos = new ArrayList<>();
-        this.conexionCliente.iniciar();
+        this.conexionCliente.iniciar(ipServer);
         colaEntrantes  = new LinkedList<>();
-
-
         crearEnemigos();
 //        this.conexionCliente = new Cliente(this);
         this.window = new InterfazGrafica(this);
-
     }
 
     public void addMessageFromServer(String datoDeServer){

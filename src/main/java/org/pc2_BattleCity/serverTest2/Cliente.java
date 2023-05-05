@@ -24,15 +24,17 @@ public class Cliente {
 //        juego = juegoEnlazado;
 //    }
 
-//    public Cliente(Juego juegoEnlazado){
+    //    public Cliente(Juego juegoEnlazado){
 //        juego = juegoEnlazado;
 //    }
     private static boolean suscrito = false;
 
 
-    static public void iniciar() {
+
+    static public void iniciar(String ipServer) {
+
         try {
-            Socket socket = new Socket("localhost", 5000);
+            Socket socket = new Socket(ipServer, 5000);
             System.out.println("Conectado al servidor");
 
             // Obtener el nombre de usuario
@@ -51,13 +53,13 @@ public class Cliente {
                 @Override
                 public void run() {
 
-                        String mensaje = "";
-                        while (true) {
+                    String mensaje = "";
+                    while (true) {
 //                             Leer el mensaje a enviar desde la consola
-                            System.out.print(">> ");
-                            mensaje = scanner.nextLine();
-                            sendSimpleMessageToServer(mensaje);
-                        }
+                        System.out.print(">> ");
+                        mensaje = scanner.nextLine();
+                        sendSimpleMessageToServer(mensaje);
+                    }
                 }
             });
             salidaThread.start();
@@ -73,7 +75,7 @@ public class Cliente {
                             // Leer el mensaje recibido y mostrarlo en pantalla
                             String mensaje = (String) entrada.readObject();
 
-                            if(mensaje.substring(0,1).equals("{")){
+                            if (mensaje.substring(0, 1).equals("{")) {
                                 receiveMessage(mensaje);
                             }
 //                            juego.addMessageFromServer(mensaje);
@@ -88,20 +90,19 @@ public class Cliente {
 
         } catch (IOException ex) {
             ex.printStackTrace();
+            //aq
         }
     }
 
 
-
-
-    private static void sendSimpleMessageToServer(String message){
+    private static void sendSimpleMessageToServer(String message) {
         JSONObject msj = new JSONObject();
-        msj.put(Constants.ID_CLIENT_LABEL,idClient);
-        msj.put(Constants.TYPE_REQUEST_LABEL,Constants.SIMPLE_MESSAGE_REQUEST);
-        msj.put(Constants.PAYLOAD_LABEL,message);
-        try{
+        msj.put(Constants.ID_CLIENT_LABEL, idClient);
+        msj.put(Constants.TYPE_REQUEST_LABEL, Constants.SIMPLE_MESSAGE_REQUEST);
+        msj.put(Constants.PAYLOAD_LABEL, message);
+        try {
             salida.writeObject(msj);
-        }catch (IOException e){
+        } catch (IOException e) {
             System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
         }
     }
@@ -113,24 +114,23 @@ public class Cliente {
 //    }
 
 
+    static private void receiveMessage(String message) {
+        System.out.println("Resibiendo 2:" + message);
 
-    static private void receiveMessage(String message){
-        System.out.println("Resibiendo 2:"+message);
-
-        if(!suscrito){
+        if (!suscrito) {
             idClient = new JSONObject(message).getInt(Constants.ID_CLIENT_LABEL);
             airport = new Airport(idClient);
         }
-        suscrito =true;
+        suscrito = true;
         JSONObject msj = airport.unpackMessageBeforeReceived(message);
 
         String type = msj.getString(Constants.TYPE_REQUEST_LABEL);
-        if(type.equals(Constants.SIMPLE_MESSAGE_REQUEST)){
-            System.out.println("El jugador con id "+message);
-        }else{
-            System.out.println("El jugador con id "+msj.getInt(Constants.ID_CLIENT_LABEL)+" Presiono "+msj.getInt(Constants.PAYLOAD_LABEL));
+        if (type.equals(Constants.SIMPLE_MESSAGE_REQUEST)) {
+            System.out.println("El jugador con id " + message);
+        } else {
+            System.out.println("El jugador con id " + msj.getInt(Constants.ID_CLIENT_LABEL) + " Presiono " + msj.getInt(Constants.PAYLOAD_LABEL));
 
-            juego.window.actionAfterKeyPressed(msj.getInt(Constants.ID_CLIENT_LABEL),msj.getInt(Constants.PAYLOAD_LABEL));
+            juego.window.actionAfterKeyPressed(msj.getInt(Constants.ID_CLIENT_LABEL), msj.getInt(Constants.PAYLOAD_LABEL));
         }
 
     }
@@ -140,10 +140,9 @@ public class Cliente {
 //    }
 
     public static void main(String[] args) {
-        juego =  new Juego();
+        juego = new Juego();
 //        Cliente.iniciar();
     }
-
 
 
 //    public static void main(String[] args) throws IOException {
