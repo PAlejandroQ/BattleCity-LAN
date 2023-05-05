@@ -18,14 +18,14 @@ public class InterfazGrafica extends JFrame implements KeyListener {
     public static final int GRIDSIZE = 15;
     private int NIVEL = 1;
 
-
+    Thread musicaThread;
     Juego juego;
 
 
     public InterfazGrafica(Juego j) {
         this.juego = j;
         this.gameBoardCanvas = new GameBoardCanvas();
-
+        this.startMusic();
         gameBoardCanvas.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         //gameBoardCanvas.p[0] = new ImagePanel(0);
         this.add(gameBoardCanvas);
@@ -48,6 +48,20 @@ public class InterfazGrafica extends JFrame implements KeyListener {
 
         // Iniciar el juego
         // ...
+    }
+    private void startMusic(){
+        Musica musica = new Musica("src/main/java/org/pc2_BattleCity/client/gui/battlefield1942.wav");
+        musicaThread = new Thread(musica);
+        musicaThread.start();
+    }
+
+    private void restartMusic()  {
+        try{
+            musicaThread.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        this.startMusic();
     }
 
     public void keyPressed(KeyEvent e) {
