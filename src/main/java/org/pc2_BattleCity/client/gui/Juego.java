@@ -36,7 +36,7 @@ public class Juego {
     public void StartJuagoAfterSuccessfulConnection(String ipServer,String nivel){
         // Crear el mapa, los tanques, las balas y los enemigos
         this.nivel = nivel;
-        this.mapa = new Mapa(1);
+        this.mapa = new Mapa(Integer.parseInt(nivel));
         this.tanques = new ArrayList<>();
         this.balas = new ArrayList<>();
         this.enemigos = new ArrayList<>();
