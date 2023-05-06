@@ -1,7 +1,6 @@
 package org.pc2_BattleCity.client.gui;
 
-import org.pc2_BattleCity.client.gui.*;
-import org.pc2_BattleCity.serverTest2.Cliente;
+import org.pc2_BattleCity.ServerAndClient.Cliente;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -28,9 +27,7 @@ public class Juego {
 
     // Constructor
     public Juego() {
-
         this.startWindow = new StartWindow(this);
-
     }
 
     public void StartJuagoAfterSuccessfulConnection(String ipServer,String nivel){
@@ -43,21 +40,11 @@ public class Juego {
         this.conexionCliente.iniciar(ipServer);
         colaEntrantes  = new LinkedList<>();
         crearEnemigos();
-//        this.conexionCliente = new Cliente(this);
         this.window = new InterfazGrafica(this);
     }
-
-    public void addMessageFromServer(String datoDeServer){
-        this.colaEntrantes.add(datoDeServer);
-    }
-
     // Método para crear los tanques
     public void crearTanque(int id) {
         // Crear los tanques y agregarlos a la lista de tanques
-        /*Tanque tanque1 = new Tanque(0, 0, Direccion.ARRIBA, 1);
-        Tanque tanque2 = new Tanque(mapa.getAncho() - 1, mapa.getAlto() - 1, Direccion.ABAJO, 1);
-        tanques.add(tanque1);
-        tanques.add(tanque2);*/
         Tanque t = new Tanque(0,0, Direccion.ARRIBA,1);
         posicionInicial(t, id);
         tanques.add(t);
@@ -89,11 +76,6 @@ public class Juego {
         enemigos.add(enemigo2);
     }
 
-    // Método para mover los tanques
-    public void moverTanques(int indiceTanque, Direccion direccion) {
-        // Mover el tanque con el índice dado en la dirección dada
-        tanques.get(indiceTanque).mover(direccion);
-    }
 
     // Método para disparar una bala desde un tanque
     public void disparar(int indiceTanque) {
@@ -129,7 +111,6 @@ public class Juego {
         }
     }
 
-    // Método para mover las balas y detectar colisiones
     // Método para mover las balas y detectar colisiones
     public void actualizarBala(Bala bala, Thread t) {
         // Mover cada bala y comprobar si choca con un tanque o un enemigo
@@ -205,10 +186,6 @@ public class Juego {
     public Tanque getTanque(int index){
         return tanques.get(index);
     }
-
-
-
-
 
 
 }

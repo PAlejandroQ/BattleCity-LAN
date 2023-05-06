@@ -99,7 +99,6 @@ public class StartWindow extends JFrame {
         gbc.insets = new Insets(50, 0, 0, 0);
         panel.add(inicioButton, gbc);
         inicioButton.addActionListener(e->{
-//            System.out.println(ipServerField.getText()+" "+grupoOpciones.getSelection().getActionCommand());
             juego.StartJuagoAfterSuccessfulConnection(ipServerField.getText(),grupoOpciones.getSelection().getActionCommand());
             this.dispose();
         });

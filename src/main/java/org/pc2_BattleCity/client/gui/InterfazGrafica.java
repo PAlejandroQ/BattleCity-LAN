@@ -1,6 +1,6 @@
 package org.pc2_BattleCity.client.gui;
 
-import org.pc2_BattleCity.serverTest2.Cliente;
+import org.pc2_BattleCity.ServerAndClient.Cliente;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -50,7 +50,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
         // ...
     }
     private void startMusic(){
-        Musica musica = new Musica("src/main/java/org/pc2_BattleCity/client/gui/battlefield1942.wav");
+        Musica musica = new Musica("src/main/java/org/pc2_BattleCity/client/gui/assets/battlefield1942.wav");
         musicaThread = new Thread(musica);
         musicaThread.start();
     }
@@ -320,7 +320,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
             this.x = t.getX() * GRIDSIZE;
             this.y = t.getY() * GRIDSIZE;
             try {
-                image = ImageIO.read(new File("src/main/java/org/pc2_BattleCity/client/gui/tank_"+jugador+".png"));
+                image = ImageIO.read(new File("src/main/java/org/pc2_BattleCity/client/gui/assets/tank_"+jugador+".png"));
                 ImageIcon icon = new ImageIcon(image.getScaledInstance(3 * GRIDSIZE, 3 * GRIDSIZE, Image.SCALE_SMOOTH));
                 img = icon.getImage();
             } catch (IOException ex) {
@@ -386,7 +386,7 @@ public class InterfazGrafica extends JFrame implements KeyListener {
 
             }
             try {
-                image = ImageIO.read(new File("src/main/java/org/pc2_BattleCity/client/gui/eagle_"+jugador+".png"));
+                image = ImageIO.read(new File("src/main/java/org/pc2_BattleCity/client/gui/assets/eagle_"+jugador+".png"));
                 ImageIcon icon = new ImageIcon(image.getScaledInstance(4 * GRIDSIZE, 4 * GRIDSIZE, Image.SCALE_SMOOTH));
                 img = icon.getImage();
             } catch (IOException ex) {

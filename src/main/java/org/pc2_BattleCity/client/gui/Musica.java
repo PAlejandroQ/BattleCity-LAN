@@ -30,7 +30,7 @@ public class Musica implements Runnable {
     }
 
     public static void main(String[] args) {
-        Musica musica = new Musica("src/main/java/org/pc2_BattleCity/client/gui/battlefield1942.wav");
+        Musica musica = new Musica("src/main/java/org/pc2_BattleCity/client/gui/assets/battlefield1942.wav");
         Thread musicaThread = new Thread(musica);
         musicaThread.start();
     }

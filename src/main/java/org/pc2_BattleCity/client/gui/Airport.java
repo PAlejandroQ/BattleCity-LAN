@@ -2,7 +2,7 @@ package org.pc2_BattleCity.client.gui;
 
 import org.json.JSONObject;
 import org.pc2_BattleCity.Constants;
-import org.pc2_BattleCity.serverTest2.Cliente;
+import org.pc2_BattleCity.ServerAndClient.Cliente;
 
 import java.io.IOException;
 
@@ -18,7 +18,6 @@ public class Airport {
         return msj;
 
     }
-
     public void packMessageAndSend(int keyBoard) {
 
         JSONObject msj = new JSONObject();
