@@ -18,9 +18,7 @@ public class Cliente {
     static public Airport airport;
     static public ObjectOutputStream salida;
     static private Scanner scanner;
-
     private static boolean suscrito = false;
-
     static public void iniciar(String ipServer) {
 
         try {
@@ -94,7 +92,6 @@ public class Cliente {
 
 
     static private void receiveMessage(String message) {
-        System.out.println("Resibiendo 2:" + message);
 
         if (!suscrito) {
             idClient = new JSONObject(message).getInt(Constants.ID_CLIENT_LABEL);
@@ -113,7 +110,6 @@ public class Cliente {
         }
 
     }
-
 
     public static void main(String[] args) {
         juego = new Juego();

@@ -8,24 +8,18 @@ import java.io.IOException;
 
 public class Airport {
     int idClient;
-
     public Airport(int idClient){
         this.idClient = idClient;
     }
-
     public JSONObject unpackMessageBeforeReceived(String message) {
         JSONObject msj = new JSONObject(message);
         return msj;
-
     }
     public void packMessageAndSend(int keyBoard) {
-
         JSONObject msj = new JSONObject();
         msj.put(Constants.ID_CLIENT_LABEL,idClient);
         msj.put(Constants.TYPE_REQUEST_LABEL,Constants.KEYBOARD_MESSAGE_REQUEST);
         msj.put(Constants.PAYLOAD_LABEL,keyBoard);
-
-
         Thread envia = new EnviaThread(msj.toString());
         envia.start();
     }
@@ -37,7 +31,6 @@ public class Airport {
         public EnviaThread(String message) {
             this.message = message;
         }
-
         @Override
         public void run() {
             super.run();
