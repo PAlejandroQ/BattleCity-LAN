@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.lang.*;
 
 public class Juego {
 
@@ -20,6 +21,7 @@ public class Juego {
 
     public Cliente conexionCliente;
     public String nivel;
+    private long T_DISPARO;
 
     Queue<String> colaEntrantes;
 
@@ -40,6 +42,7 @@ public class Juego {
         this.conexionCliente.iniciar(ipServer);
         colaEntrantes  = new LinkedList<>();
         crearEnemigos();
+        this.T_DISPARO = 0;
         this.window = new InterfazGrafica(this);
     }
     // Método para crear los tanques
@@ -80,6 +83,11 @@ public class Juego {
     // Método para disparar una bala desde un tanque
     public void disparar(int indiceTanque) {
         // Crear una nueva bala en la posición del tanque y con la dirección del cañón
+        long t_actual = System.currentTimeMillis();
+        if(t_actual - T_DISPARO<=1000){
+            return;
+        }
+
         Tanque tanque = tanques.get(indiceTanque);
         Bala bala;
         if(tanque.getDireccion()==Direccion.ARRIBA){
@@ -97,6 +105,7 @@ public class Juego {
 
         balas.add(bala);
         ActualizarBalaThread t = new ActualizarBalaThread(bala);
+        T_DISPARO = t_actual;
         t.start();
     }
 
