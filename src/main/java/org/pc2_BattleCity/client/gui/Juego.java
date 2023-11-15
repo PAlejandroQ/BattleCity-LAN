@@ -48,7 +48,7 @@ public class Juego {
     // Método para crear los tanques
     public void crearTanque(int id) {
         // Crear los tanques y agregarlos a la lista de tanques
-        Tanque t = new Tanque(0,0, Direccion.ARRIBA,1);
+        Tanque t = new Tanque(0,0, Direccion.ARRIBA,1, id);
         posicionInicial(t, id);
         tanques.add(t);
     }
@@ -133,7 +133,8 @@ public class Juego {
                         for(int j=1;j<3;++j){
                             if (bala.getX() == tanque.getX()+i && bala.getY() == tanque.getY()+j) {
                                 // La bala chocó con un tanque
-                                tanque.recibirDanio(bala.getPotencia());
+                                posicionInicial(tanque, tanque.id);
+                                //tanque.recibirDanio(bala.getPotencia());
                                 balas.remove(bala);
                                 hit=true;
                                 break;

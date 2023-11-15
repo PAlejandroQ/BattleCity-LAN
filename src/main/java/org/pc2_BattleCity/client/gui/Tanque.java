@@ -8,8 +8,18 @@ public class Tanque {
     private boolean vivo; // indica si el tanque está vivo o muerto
     private int velocidad; // velocidad de movimiento del tanque
     private int potenciaDisparo; // potencia de disparo del tanque
+    public int id;
 
     // Constructor
+    public Tanque(int x, int y, Direccion direccion, int velocidad, int id) {
+        this.x = x;
+        this.y = y;
+        this.direccion = direccion;
+        this.vivo = true;
+        this.velocidad = 1;
+        this.potenciaDisparo = 1;
+        this.id = id;
+    }
     public Tanque(int x, int y, Direccion direccion, int velocidad) {
         this.x = x;
         this.y = y;
@@ -17,6 +27,7 @@ public class Tanque {
         this.vivo = true;
         this.velocidad = 1;
         this.potenciaDisparo = 1;
+
     }
 
     // Métodos getter y setter
