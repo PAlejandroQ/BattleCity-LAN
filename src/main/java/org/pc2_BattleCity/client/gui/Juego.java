@@ -147,8 +147,9 @@ public class Juego {
                 for (Enemigo enemigo : enemigos) {
                     if (bala.getX() == enemigo.getX() && bala.getY() == enemigo.getY()) {
                         // La bala chocó con un enemigo
-                        enemigo.recibirDanio(bala.getPotencia());
+                        //enemigo.recibirDanio(bala.getPotencia());
                         balas.remove(bala);
+                        posicionInicial(enemigo, enemigo.id);
                         hit=true;
                         break;
                     }
