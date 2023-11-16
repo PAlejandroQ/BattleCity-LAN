@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 import org.pc2_BattleCity.Constants;
@@ -21,17 +22,35 @@ public class Servidor {
 
         System.out.println("Servidor iniciado en el puerto " + PUERTO);
 
+
         while (true) {
+            idAvailable = idAvailable % 4;
             Socket socketCliente = servidor.accept();
             System.out.println("Nuevo cliente conectado desde " + socketCliente.getInetAddress().getHostAddress());
-            ConexionCliente clienteConectado = new ConexionCliente(socketCliente,idAvailable);
-            clientesConectados.add(clienteConectado);
 
-            sendSimpleMessageToOneClient(idAvailable,"TU ID ES:"+idAvailable);
+            while(true){
+                int finalIdAvailable = idAvailable;
+                if(!clientesConectados.isEmpty() && !(clientesConectados.stream().filter(client -> client.idClient == finalIdAvailable).count() == 0)){
+                    System.out.println(idAvailable);
+                    idAvailable++;
+                }
+                else{
+                    break;
+                }
+            }
 
-            new Thread(clienteConectado).start();
+            System.out.println("OK");
+            if(clientesConectados.size()<4) {
 
+                ConexionCliente clienteConectado = new ConexionCliente(socketCliente, idAvailable);
+                clientesConectados.add(clienteConectado);
+
+                sendSimpleMessageToOneClient(idAvailable, "TU ID ES:" + idAvailable);
+
+                new Thread(clienteConectado).start();
+            }
             idAvailable++;
+
         }
     }
 
@@ -49,6 +68,8 @@ public class Servidor {
             this.idClient = idClient;
         }
 
+
+
         @Override
         public void run() {
 
@@ -57,10 +78,12 @@ public class Servidor {
                     sendSimpleMessageToOneClient(idClient,"Bienvenido al chat.");
                     nombreCliente = (String) entrada.readObject();
 //
-                    while (true) {
+                    while (socketCliente.isConnected()) {
                         String message = (String) entrada.readObject();
                         sendBroadCastMessageKeyPressed(message);
                     }
+                    System.out.println("Cliente desconectado");
+
                 } catch (IOException | ClassNotFoundException e) {
                     System.err.println("Error al leer el mensaje del cliente: " + e.getMessage());
                 } finally {
@@ -108,7 +131,9 @@ public class Servidor {
 
         System.out.println("enviando simple message:"+msj);
         try{
-            clientesConectados.get(idClient).salida.writeObject(msj.toString());
+            //filtra las conexiones para hallar la que tiene el id (las conexiones pueden no estar ordenadas de acuerdo al id, por eso la filtracion)
+            ConexionCliente cliente = clientesConectados.stream().filter(client -> client.idClient==idClient).collect(Collectors.toList()).get(0);
+            cliente.salida.writeObject(msj.toString());
         }catch (IOException e){
             System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
         }
