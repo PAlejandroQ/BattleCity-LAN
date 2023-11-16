@@ -94,6 +94,7 @@ public class Servidor {
         for (ConexionCliente cliente : clientesConectados) {
             try {
                 cliente.salida.writeObject(message);
+                System.out.println("->"+cliente.idClient);
             } catch (IOException e) {
                 System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
             }
