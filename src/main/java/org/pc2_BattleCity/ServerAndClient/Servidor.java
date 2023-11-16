@@ -59,6 +59,7 @@ public class Servidor {
 //
                     while (true) {
                         String message = (String) entrada.readObject();
+                        System.out.println("Receive:"+ message);
                         sendBroadCastMessageKeyPressed(message);
                     }
                 } catch (IOException | ClassNotFoundException e) {
@@ -94,7 +95,7 @@ public class Servidor {
         for (ConexionCliente cliente : clientesConectados) {
             try {
                 cliente.salida.writeObject(message);
-                System.out.println("->"+cliente.idClient);
+                System.out.println("->"+cliente.idClient+" "+cliente.nombreCliente);
             } catch (IOException e) {
                 System.err.println("Error al enviar mensaje a cliente: " + e.getMessage());
             }
